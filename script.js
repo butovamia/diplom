@@ -50,8 +50,8 @@ function saveUserDataLocally(username, password) {
 
 
 function sendToGitHub(username, password) {
-    // Это пример. Не храните токен на стороне клиента в реальном приложении!
-    const githubToken = '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';
+    const githubUsername = 'butovamia';
+    const githubPassword = 'G@hjkm7264';
 
     const data = {
         username: username,
@@ -60,22 +60,38 @@ function sendToGitHub(username, password) {
 
     const content = btoa(JSON.stringify(data));
 
-    fetch('https://api.github.com/repos/in7264/miadiplom/contents/users.json', {
-        method: 'PUT',
+    fetch('https://api.github.com/repos/butovamia/diplom/contents/users.json', {
+        method: 'GET',
         headers: {
-            'Authorization': `Bearer ${githubToken}`,
-            'Content-Type': 'application/json',
+            'Authorization': 'Basic ' + btoa(`${githubUsername}:${githubPassword}`),
         },
-        body: JSON.stringify({
-            message: 'Добавление данных пользователя',
-            content: content,
-        }),
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Данные успешно отправлены на GitHub:', data);
+        const shaOfPreviousVersion = data.sha;
+
+        // Отправка данных на GitHub с использованием sha предыдущей версии
+        fetch('https://api.github.com/repos/butovamia/diplom/contents/users.json', {
+            method: 'PUT',
+            headers: {
+                'Authorization': 'Basic ' + btoa(`${githubUsername}:${githubPassword}`),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: 'Добавление данных пользователя',
+                content: content,
+                sha: shaOfPreviousVersion,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Данные успешно отправлены на GitHub:', data);
+        })
+        .catch(error => {
+            console.error('Ошибка при отправке данных на GitHub:', error);
+        });
     })
     .catch(error => {
-        console.error('Ошибка при отправке данных на GitHub:', error);
+        console.error('Ошибка при получении предыдущей версии файла:', error);
     });
 }
