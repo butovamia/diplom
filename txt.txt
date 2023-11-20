@@ -1,0 +1,2 @@
+    const githubToken = 'ghp_B25NgQ3Z8M7k9tU5dlD5Kc';
+${githubToken + 'cSi0obAX0fKZVB'}`
