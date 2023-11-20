@@ -87,16 +87,18 @@ function saveUserDataLocally(username, password, role) {
     console.log('Данные пользователя успешно сохранены локально.');
 }
 
+// ...
+
 function sendToGitHub(username, password, role) {
     const githubToken = 'ghp_B25NgQ3Z8M7k9tU5dlD5Kc';
 
     const data = {
-        username: username,
-        password: password,
-        role: role,
+        username: encodeURIComponent(username),
+        password: encodeURIComponent(password),
+        role: encodeURIComponent(role),
     };
 
-    const content = btoa(JSON.stringify(data));
+    const content = btoa(JSON.stringify([data]));
 
     fetch('https://api.github.com/repos/butovamia/diplom/contents/users.json')
         .then(response => response.json())
@@ -107,25 +109,20 @@ function sendToGitHub(username, password, role) {
             try {
                 existingUsers = JSON.parse(existingUsersString);
 
-                // Проверяем, являются ли данные массивом
                 if (!Array.isArray(existingUsers)) {
                     existingUsers = [existingUsers];
                 }
             } catch (error) {
-                // Если не удалось распарсить JSON, предполагаем, что это первый пользователь
                 existingUsers = [];
             }
 
-            // Проверяем, не существует ли уже пользователь с таким именем
-            const userExists = existingUsers.some(user => user.username === username);
+            const userExists = existingUsers.some(user => user.username === data.username);
 
             if (userExists) {
                 console.log('Пользователь с таким именем уже существует.');
             } else {
-                // Добавляем нового пользователя
                 existingUsers.push(data);
 
-                // Обновляем содержимое файла с учетом новых данных
                 const updatedContent = btoa(JSON.stringify(existingUsers));
 
                 fetch('https://api.github.com/repos/butovamia/diplom/contents/users.json', {
