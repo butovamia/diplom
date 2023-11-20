@@ -50,12 +50,9 @@ function saveUserDataLocally(username, password) {
 
 
 function sendToGitHub(username, password) {
-    const githubUsername = 'butovamia';
-    const githubPassword = 'G@hjkm7264';
-
     const data = {
-        username: username,
-        password: password,
+        username: 'butovamia',
+        password: 'gfhjkm11',
     };
 
     const content = btoa(JSON.stringify(data));
@@ -63,7 +60,7 @@ function sendToGitHub(username, password) {
     fetch('https://api.github.com/repos/butovamia/diplom/contents/users.json', {
         method: 'GET',
         headers: {
-            'Authorization': 'Basic ' + btoa(`${githubUsername}:${githubPassword}`),
+            'Authorization': 'Basic ' + btoa(`${username}:${password}`),
         },
     })
     .then(response => response.json())
@@ -74,7 +71,7 @@ function sendToGitHub(username, password) {
         fetch('https://api.github.com/repos/butovamia/diplom/contents/users.json', {
             method: 'PUT',
             headers: {
-                'Authorization': 'Basic ' + btoa(`${githubUsername}:${githubPassword}`),
+                'Authorization': 'Basic ' + btoa(`${username}:${password}`),
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
@@ -83,7 +80,16 @@ function sendToGitHub(username, password) {
                 sha: shaOfPreviousVersion,
             }),
         })
-        .then(response => response.json())
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else if (response.status === 404) {
+                throw new Error('File not found on GitHub. Check the repository, file name, and branch.');
+            } else {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+        })
+        
         .then(data => {
             console.log('Данные успешно отправлены на GitHub:', data);
         })
