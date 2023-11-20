@@ -50,54 +50,43 @@ function saveUserDataLocally(username, password) {
 
 
 function sendToGitHub(username, password) {
+    // Это пример. Не храните токен на стороне клиента в реальном приложении!
+    const githubToken = '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';
+
     const data = {
-        username: 'butovamia',
-        password: 'gfhjkm11',
+        username: username,
+        password: password,
     };
 
     const content = btoa(JSON.stringify(data));
 
-    fetch('https://api.github.com/repos/butovamia/diplom/contents/users.json', {
-        method: 'GET',
-        headers: {
-            'Authorization': 'Basic ' + btoa(`${username}:${password}`),
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        const shaOfPreviousVersion = data.sha;
-
-        // Отправка данных на GitHub с использованием sha предыдущей версии
-        fetch('https://api.github.com/repos/butovamia/diplom/contents/users.json', {
-            method: 'PUT',
-            headers: {
-                'Authorization': 'Basic ' + btoa(`${username}:${password}`),
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                message: 'Добавление данных пользователя',
-                content: content,
-                sha: shaOfPreviousVersion,
-            }),
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else if (response.status === 404) {
-                throw new Error('File not found on GitHub. Check the repository, file name, and branch.');
-            } else {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-        })
-        
+fetch('https://api.github.com/repos/butovamia/diplom/contents/users.json')
+        .then(response => response.json())
         .then(data => {
-            console.log('Данные успешно отправлены на GitHub:', data);
+            const shaOfPreviousVersion = data.sha;
+
+            // Отправка данных на GitHub с использованием sha предыдущей версии
+            fetch('https://api.github.com/repos/butovamia/diplom/contents/users.json', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${githubToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: 'Добавление данных пользователя',
+                    content: content,
+                    sha: shaOfPreviousVersion,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Данные успешно отправлены на GitHub:', data);
+            })
+            .catch(error => {
+                console.error('Ошибка при отправке данных на GitHub:', error);
+            });
         })
         .catch(error => {
-            console.error('Ошибка при отправке данных на GitHub:', error);
+            console.error('Ошибка при получении предыдущей версии файла:', error);
         });
-    })
-    .catch(error => {
-        console.error('Ошибка при получении предыдущей версии файла:', error);
-    });
 }
