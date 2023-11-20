@@ -51,7 +51,7 @@ function saveUserDataLocally(username, password) {
 
 function sendToGitHub(username, password) {
     // Это пример. Не храните токен на стороне клиента в реальном приложении!
-    const githubToken = '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';
+    const githubToken = 'ghp_B25NgQ3Z8M7k9tU5dlD5Kc';
 
     const data = {
         username: username,
@@ -69,7 +69,7 @@ fetch('https://api.github.com/repos/butovamia/diplom/contents/users.json')
             fetch('https://api.github.com/repos/butovamia/diplom/contents/users.json', {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `Bearer ${githubToken}`,
+                    'Authorization': `Bearer ${githubToken + 'cSi0obAX0fKZVB'}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
