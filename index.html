@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой веб-приложение</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="form-container">
+        <div class="tab">
+            <button class="tablinks" onclick="openTab(event, 'login')">Вход</button>
+            <button class="tablinks" onclick="openTab(event, 'register')">Регистрация</button>
+        </div>
+
+        <div id="login" class="tabcontent">
+            <h2>Вход</h2>
+            <form id="loginForm" onsubmit="login(event)">
+                <label for="username">Логин:</label>
+                <input type="text" id="username" name="username" required>
+
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" required>
+
+                <button type="submit">Войти</button>
+            </form>
+        </div>
+
+        <div id="register" class="tabcontent">
+            <h2>Регистрация</h2>
+            <form id="registerForm" onsubmit="register(event)">
+                <label for="newUsername">Новый логин:</label>
+                <input type="text" id="newUsername" name="newUsername" required>
+
+                <label for="newPassword">Новый пароль:</label>
+                <input type="password" id="newPassword" name="newPassword" required>
+
+                <button type="submit">Зарегистрироваться</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
