@@ -55,9 +55,35 @@
 </div>
 
 <div id="Tab3" class="tabcontent">
-    <!-- Содержимое вкладки 3 -->
-    <p>Content for Tab 3</p>
+    <div id="employeeForm">
+        <h3>Зареєструвати нового працівника</h3>
+        <form onsubmit="registerEmployee(event)">
+            <label for="firstName">Ім'я:</label>
+            <input type="text" id="firstName" required>
+
+            <label for="lastName">Прізвище:</label>
+            <input type="text" id="lastName" required>
+
+            <label for="middleName">По-батькові:</label>
+            <input type="text" id="middleName" required>
+
+            <label for="birthYear">Рік народження:</label>
+            <input type="text" id="birthYear" required>
+
+            <label for="experience">Стаж роботи:</label>
+            <input type="text" id="experience" required>
+
+            <label for="technologies">Освоєні технології:</label>
+            <input type="text" id="employeeTechnologies" required>
+
+            <label for="expectedSalary">Очікувана зарплата:</label>
+            <input type="text" id="expectedSalary" required>
+
+            <button type="submit">Зареєструвати працівника</button>
+        </form>
+    </div>
 </div>
+
 
 <div id="Tab4" class="tabcontent">
     <!-- Содержимое вкладки 3 -->

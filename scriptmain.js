@@ -174,3 +174,77 @@ function showOffers() {
             console.error('Ошибка при получении данных о оферах:', error);
         });
 }
+
+function registerEmployee(event) {
+    event.preventDefault();
+
+    // Получаем значения полей из формы
+    const firstName = document.getElementById("firstName").value;
+    const lastName = document.getElementById("lastName").value;
+    const middleName = document.getElementById("middleName").value;
+    const birthYear = document.getElementById("birthYear").value;
+    const experience = document.getElementById("experience").value;
+    const employeeTechnologies = document.getElementById("employeeTechnologies").value;
+    const expectedSalary = document.getElementById("expectedSalary").value;
+
+    // Создаем объект с данными о сотруднике
+    const employeeData = {
+        firstName: firstName,
+        lastName: lastName,
+        middleName: middleName,
+        birthYear: birthYear,
+        experience: experience,
+        technologies: employeeTechnologies,
+        expectedSalary: expectedSalary,
+    };
+
+    // Отправляем данные на сервер (замените на свои данные и укажите правильный путь к employees.json)
+    fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
+        .then(response => response.json())
+        .then(existingData => {
+            const existingEmployeesString = atob(existingData.content);
+            let existingEmployees;
+
+            try {
+                existingEmployees = JSON.parse(existingEmployeesString);
+
+                if (!Array.isArray(existingEmployees)) {
+                    existingEmployees = [existingEmployees];
+                }
+            } catch (error) {
+                existingEmployees = [];
+            }
+
+            // Добавляем нового сотрудника
+            existingEmployees.push(employeeData);
+
+            // Обновляем содержимое файла с учетом новых данных
+            const updatedContent = btoa(JSON.stringify(existingEmployees));
+            const githubToken = 'ghp_B25NgQ3Z8M7k9tU5dlD5Kc';
+
+            fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${githubToken + 'cSi0obAX0fKZVB'}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: 'Додавання нового співробітника',
+                    content: updatedContent,
+                    sha: existingData.sha,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Дані успішно відправлені на GitHub:', data);
+            })
+            .catch(error => {
+                console.error('Помилка при оновленні даних на GitHub:', error);
+            });
+        })
+        .catch(error => {
+            console.error('Помилка при отриманні попередньої версії файлу:', error);
+        });
+
+    showNotification('Працівник успішно зареєстрований!');
+}
