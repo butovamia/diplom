@@ -192,14 +192,15 @@ function registerEmployee(event) {
 
     // Создаем объект с данными о сотруднике
     const employeeData = {
-        firstName: firstName,
-        lastName: lastName,
-        middleName: middleName,
-        birthYear: birthYear,
-        experience: experience,
-        technologies: employeeTechnologies,
-        expectedSalary: expectedSalary,
+        firstName: encodeURI(firstName),
+        lastName: encodeURI(lastName),
+        middleName: encodeURI(middleName),
+        birthYear: encodeURI(birthYear),
+        experience: encodeURI(experience),
+        technologies: encodeURI(employeeTechnologies),
+        expectedSalary: encodeURI(expectedSalary),
     };
+    
 
     // Отправляем данные на сервер (замените на свои данные и укажите правильный путь к employees.json)
     fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
@@ -222,7 +223,7 @@ function registerEmployee(event) {
             existingEmployees.push(employeeData);
 
             // Обновляем содержимое файла с учетом новых данных
-            const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(existingEmployees))));
+            const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(existingEmployees)))).replace(/.{76}/g, "$&\n");
             const githubToken = 'ghp_B25NgQ3Z8M7k9tU5dlD5Kc';
             console.log('Отправляемые данные:', JSON.stringify(existingEmployees));
 
@@ -265,7 +266,7 @@ function showPersonnel() {
         })
         .then(data => {
             const personnelString = atob(data.content);
-            const decodedPersonnelString = decodeURIComponent(escape(personnelString));
+            const decodedPersonnelString = decodeURIComponent(personnelString);
 
             let personnel;
 
