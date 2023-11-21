@@ -12,11 +12,14 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById("userRole").textContent = `Роль: ${decodeURIComponent(userData.role)}`;
     }
 
-        // По умолчанию открываем первую вкладку
-        document.getElementById("Tab1").style.display = "block";
-    
-        // Отображаем оферы при загрузке страницы
-        showOffers();
+    // По умолчанию открываем первую вкладку
+    document.getElementById("Tab1").style.display = "block";
+
+    // Отображаем оферы при загрузке страницы
+    showOffers();
+
+    // Отображаем персонал при загрузке страницы
+    showPersonnel();
 });
 
 function openTab(evt, tabName) {
@@ -36,25 +39,25 @@ function openTab(evt, tabName) {
 function showNotification(message) {
     const notification = document.getElementById('notification');
     const notificationMessage = document.getElementById('notification-message');
-  
+
     // Устанавливаем текст уведомления
     notificationMessage.textContent = message;
-  
+
     // Показываем уведомление
     notification.classList.remove('hide');
-  
+
     // Через 5 секунд скрываем уведомление
     setTimeout(() => {
-      hideNotification();
+        hideNotification();
     }, 5000);
-  }
-  
-  // Функция для скрытия уведомления
-  function hideNotification() {
+}
+
+// Функция для скрытия уведомления
+function hideNotification() {
     const notification = document.getElementById('notification');
     notification.classList.add('hide');
-  }
-  
+}
+
 
 function createOffer(event) {
     event.preventDefault();
@@ -97,7 +100,7 @@ function createOffer(event) {
             existingOffers.push(offerData);
 
             // Обновляем содержимое файла с учетом новых данных
-            const updatedContent = btoa(JSON.stringify(existingOffers));
+            const updatedContent = encodeURIComponent(JSON.stringify(existingOffers));
             const githubToken = 'ghp_B25NgQ3Z8M7k9tU5dlD5Kc';
 
             fetch('https://api.github.com/repos/butovamia/diplom/contents/offers.json', {
@@ -112,18 +115,18 @@ function createOffer(event) {
                     sha: existingData.sha,
                 }),
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Данные успешно отправлены на GitHub:', data);
-            })
-            .catch(error => {
-                console.error('Ошибка при обновлении данных на GitHub:', error);
-            });
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Данные успешно отправлены на GitHub:', data);
+                })
+                .catch(error => {
+                    console.error('Ошибка при обновлении данных на GitHub:', error);
+                });
         })
         .catch(error => {
             console.error('Ошибка при получении предыдущей версии файла:', error);
         });
-        
+
 }
 
 function showOffers() {
@@ -219,8 +222,9 @@ function registerEmployee(event) {
             existingEmployees.push(employeeData);
 
             // Обновляем содержимое файла с учетом новых данных
-            const updatedContent = btoa(JSON.stringify(existingEmployees));
+            const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(existingEmployees))));
             const githubToken = 'ghp_B25NgQ3Z8M7k9tU5dlD5Kc';
+            console.log('Отправляемые данные:', JSON.stringify(existingEmployees));
 
             fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json', {
                 method: 'PUT',
@@ -229,22 +233,74 @@ function registerEmployee(event) {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    message: 'Додавання нового співробітника',
+                    message: 'Добавление нового сотрудника',
                     content: updatedContent,
                     sha: existingData.sha,
                 }),
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Дані успішно відправлені на GitHub:', data);
-            })
-            .catch(error => {
-                console.error('Помилка при оновленні даних на GitHub:', error);
-            });
+
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Дані успішно відправлені на GitHub:', data);
+                })
+                .catch(error => {
+                    console.error('Помилка при оновленні даних на GitHub:', error);
+                });
         })
         .catch(error => {
             console.error('Помилка при отриманні попередньої версії файлу:', error);
         });
 
     showNotification('Працівник успішно зареєстрований!');
+}
+
+function showPersonnel() {
+    // Получаем данные о персонале из файла employees.json
+    fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка при получении данных с сервера');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const personnelString = atob(data.content);
+            const decodedPersonnelString = decodeURIComponent(escape(personnelString));
+
+            let personnel;
+
+            try {
+                personnel = JSON.parse(decodedPersonnelString);
+
+                if (!Array.isArray(personnel)) {
+                    personnel = [personnel];
+                }
+            } catch (error) {
+                personnel = [];
+            }
+
+            // Очищаем список персонала
+            const personnelList = document.getElementById('personnelList');
+            personnelList.innerHTML = '';
+
+            // Выводим каждого сотрудника
+            personnel.forEach(person => {
+                const personItem = document.createElement('div');
+                personItem.classList.add('person-item');
+
+                const content = `
+                    <p>Ім'я: ${person.firstName}</p>
+                    <p>Прізвище: ${person.lastName}</p>
+                    <p>Рік народження: ${person.birthYear}</p>
+                    <p>Стаж: ${person.experience}</p>
+                    <p>Очікувана зарплатня: ${person.expectedSalary}</p>
+                `;
+
+                personItem.innerHTML = content;
+                personnelList.appendChild(personItem);
+            });
+        })
+        .catch(error => {
+            console.error('Ошибка при получении данных о персонале:', error);
+        });
 }

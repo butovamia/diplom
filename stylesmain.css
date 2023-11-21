@@ -94,3 +94,60 @@ body {
     display: none;
   }
   
+
+  /* Добавьте следующие стили в ваш файл CSS */
+  #Tab3 {
+    padding: 20px;
+}
+
+#employeeForm {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+#employeeForm label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+#employeeForm input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+}
+
+#employeeForm button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+}
+
+.offer-item {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 10px;
+    width: 200px;
+    float: left;
+}
+
+#Tab4 {
+    padding: 20px;
+}
+
+#personnelList {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.person-item {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 10px;
+    width: 200px;
+    flex: 0 0 calc(33.33% - 20px); /* Три колонки на экране */
+}

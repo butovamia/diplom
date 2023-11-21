@@ -19,7 +19,7 @@
     <button id="tab1Btn" class="tablinks" onclick="openTab(event, 'Tab1')">Реєстрація нових оферів</button>
     <button id="tab2Btn" class="tablinks" onclick="openTab(event, 'Tab2')">Перегляд оферів</button>
     <button id="tab3Btn" class="tablinks" onclick="openTab(event, 'Tab3')">Реєстрація працівників</button>
-    <button id="tab4Btn" class="tablinks" onclick="openTab(event, 'Tab4')">Підбір персоналу</button>
+    <button id="tab4Btn" class="tablinks" onclick="openTab(event, 'Tab4')">Перегляд персоналу</button>
 </div>
 
 <div id="Tab1" class="tabcontent">
@@ -84,10 +84,12 @@
     </div>
 </div>
 
-
 <div id="Tab4" class="tabcontent">
-    <!-- Содержимое вкладки 3 -->
-    <p>Content for Tab 3</p>
+    <!-- Содержимое вкладки 2 -->
+    <div id="personnelList">
+        <h3>Список персоналу</h3>
+        <ul id="personnel"></ul>
+    </div>
 </div>
 
 <div id="notification" class="notification hide">
