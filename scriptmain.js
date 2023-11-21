@@ -100,7 +100,7 @@ function createOffer(event) {
             existingOffers.push(offerData);
 
             // Обновляем содержимое файла с учетом новых данных
-            const updatedContent = encodeURIComponent(JSON.stringify(existingOffers));
+            const updatedContent = btoa(JSON.stringify(existingOffers));
             const githubToken = 'ghp_B25NgQ3Z8M7k9tU5dlD5Kc';
 
             fetch('https://api.github.com/repos/butovamia/diplom/contents/offers.json', {
