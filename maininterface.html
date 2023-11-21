@@ -16,22 +16,40 @@
 </div>
 
 <div class="tab">
-    <button id="tab1" class="tablinks" onclick="openTab(event, 'Tab1')">Tab 1</button>
-    <button id="tab2" class="tablinks" onclick="openTab(event, 'Tab2')">Tab 2</button>
-    <button id="tab3" class="tablinks" onclick="openTab(event, 'Tab3')">Tab 3</button>
+    <button id="tab1Btn" class="tablinks" onclick="openTab(event, 'Tab1')">Реєстрація нових оферів</button>
+    <button id="tab2Btn" class="tablinks" onclick="openTab(event, 'Tab2')">Реєстрація працівників</button>
+    <button id="tab3Btn" class="tablinks" onclick="openTab(event, 'Tab3')">Підбір персоналу</button>
 </div>
 
-<div id="tab1" class="tabcontent">
-    <!-- Содержимое вкладки 1 -->
-    <p>Content for Tab 1</p>    
+<div id="Tab1" class="tabcontent">
+    <div id="offerForm">
+        <h3>Создать новый оффер</h3>
+        <form onsubmit="createOffer(event)">
+            <label for="companyName">Название компании:</label>
+            <input type="text" id="companyName" required>
+
+            <label for="offerName">Название оффера:</label>
+            <input type="text" id="offerName" required>
+
+            <label for="salary">Зарплата:</label>
+            <input type="text" id="salary" required>
+
+            <label for="language">Язык вакансии:</label>
+            <input type="text" id="language" required>
+
+            <label for="technologies">Необходимые технологии:</label>
+            <input type="text" id="technologies" required>
+
+            <button type="submit">Создать оффер</button>
+        </form>
 </div>
 
-<div id="tab2" class="tabcontent">
+<div id="Tab2" class="tabcontent">
     <!-- Содержимое вкладки 2 -->
     <p>Content for Tab 2</p>
 </div>
 
-<div id="tab3" class="tabcontent">
+<div id="Tab3" class="tabcontent">
     <!-- Содержимое вкладки 3 -->
     <p>Content for Tab 3</p>
 </div>

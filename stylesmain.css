@@ -1,18 +1,28 @@
+/* stylesmain.css */
+
 body {
     font-family: Arial, sans-serif;
 }
 
+#userInfo {
+    background-color: #f1f1f1;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
 .tab {
     overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
 }
 
 .tab button {
-    background-color: #f2f2f2;
+    background-color: inherit;
     float: left;
-    border: 1px solid #ccc;
+    border: none;
     outline: none;
     cursor: pointer;
-    padding: 10px 20px;
+    padding: 14px 16px;
     transition: 0.3s;
 }
 
@@ -20,14 +30,39 @@ body {
     background-color: #ddd;
 }
 
+.tab button.active {
+    background-color: #ccc;
+}
+
 .tabcontent {
     display: none;
 }
 
-#userInfo {
-    margin-top: 20px;
+#Tab1 {
+    padding: 20px;
 }
 
-#userInfo h2, #userInfo p {
-    margin: 0;
+#offerForm {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+#offerForm label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+#offerForm input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+}
+
+#offerForm button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
 }
