@@ -12,10 +12,14 @@ function openTab(evt, tabName) {
     evt.currentTarget.className += " active";
 }
 
-function checkExistingUser(username) {
-    // Проверка существования пользователя на сервере
+function checkExistingUser(username, password) {
     return fetch('https://api.github.com/repos/butovamia/diplom/contents/users.json')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка при получении данных с сервера');
+            }
+            return response.json();
+        })
         .then(data => {
             const existingUsersString = atob(data.content);
             let existingUsers;
@@ -23,16 +27,23 @@ function checkExistingUser(username) {
             try {
                 existingUsers = JSON.parse(existingUsersString);
 
-                // Проверяем, являются ли данные массивом
                 if (!Array.isArray(existingUsers)) {
                     existingUsers = [existingUsers];
                 }
             } catch (error) {
-                // Если не удалось распарсить JSON, предполагаем, что это первый пользователь
                 existingUsers = [];
             }
 
-            return existingUsers.some(user => user.username === username);
+            // Проверяем, существует ли пользователь с таким именем и паролем
+            const userExists = existingUsers.some(user => user.username === username && user.password === password);
+
+            if (userExists) {
+                // Найден пользователь, сохраняем информацию в localStorage
+                const foundUser = existingUsers.find(user => user.username === username && user.password === password);
+                localStorage.setItem('usersData', JSON.stringify(foundUser));
+            }
+
+            return userExists; // Возвращаем флаг существования пользователя
         });
 }
 
@@ -41,9 +52,37 @@ function login(event) {
     event.preventDefault();
     var username = document.getElementById("username").value;
     var password = document.getElementById("password").value;
+
     // Реализуйте логику входа на стороне клиента
     console.log("Вход выполнен с логином: " + username);
+
+    // Вызываем функцию для проверки существующего пользователя
+    checkExistingUser(username, password)
+        .then(userExists => {
+            if (userExists) {
+                console.log("Вход выполнен успешно.");
+
+
+                // После успешного входа
+                document.getElementById("loginForm").style.display = "none"; // Скрываем форму входа
+                window.location.href = "maininterface.html"; // Перенаправляем на страницу maininterface.html
+
+
+                // Также вы можете обновить содержимое главного интерфейса или выполнить другие действия
+
+                return true;
+            } else {
+                console.log("Пользователь не найден или неверный пароль.");
+                return false;
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при проверке пользователя:', error);
+            return false;
+        });
 }
+
+
 
 function register(event) {
     event.preventDefault();
@@ -137,13 +176,13 @@ function sendToGitHub(username, password, role) {
                         sha: existingData.sha,
                     }),
                 })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Данные успешно отправлены на GitHub:', data);
-                })
-                .catch(error => {
-                    console.error('Ошибка при обновлении данных на GitHub:', error);
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Данные успешно отправлены на GitHub:', data);
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при обновлении данных на GitHub:', error);
+                    });
             }
         })
         .catch(error => {

@@ -1,0 +1,40 @@
+<!-- maininterface.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Interface</title>
+    <link rel="stylesheet" href="stylesmain.css">
+    <script src="scriptmain.js"></script>
+</head>
+<body>
+
+<div id="userInfo">
+    <h2 id="username"></h2>
+    <p id="userRole"></p>
+</div>
+
+<div class="tab">
+    <button id="tab1" class="tablinks" onclick="openTab(event, 'Tab1')">Tab 1</button>
+    <button id="tab2" class="tablinks" onclick="openTab(event, 'Tab2')">Tab 2</button>
+    <button id="tab3" class="tablinks" onclick="openTab(event, 'Tab3')">Tab 3</button>
+</div>
+
+<div id="tab1" class="tabcontent">
+    <!-- Содержимое вкладки 1 -->
+    <p>Content for Tab 1</p>    
+</div>
+
+<div id="tab2" class="tabcontent">
+    <!-- Содержимое вкладки 2 -->
+    <p>Content for Tab 2</p>
+</div>
+
+<div id="tab3" class="tabcontent">
+    <!-- Содержимое вкладки 3 -->
+    <p>Content for Tab 3</p>
+</div>
+
+</body>
+</html>
