@@ -17,8 +17,9 @@
 
 <div class="tab">
     <button id="tab1Btn" class="tablinks" onclick="openTab(event, 'Tab1')">Реєстрація нових оферів</button>
-    <button id="tab2Btn" class="tablinks" onclick="openTab(event, 'Tab2')">Реєстрація працівників</button>
-    <button id="tab3Btn" class="tablinks" onclick="openTab(event, 'Tab3')">Підбір персоналу</button>
+    <button id="tab2Btn" class="tablinks" onclick="openTab(event, 'Tab2')">Перегляд оферів</button>
+    <button id="tab3Btn" class="tablinks" onclick="openTab(event, 'Tab3')">Реєстрація працівників</button>
+    <button id="tab4Btn" class="tablinks" onclick="openTab(event, 'Tab4')">Підбір персоналу</button>
 </div>
 
 <div id="Tab1" class="tabcontent">
@@ -42,11 +43,15 @@
 
             <button type="submit">Создать оффер</button>
         </form>
+    </div>
 </div>
 
 <div id="Tab2" class="tabcontent">
     <!-- Содержимое вкладки 2 -->
-    <p>Content for Tab 2</p>
+    <div id="offerList">
+        <h3>Список оферов</h3>
+        <ul id="offers"></ul>
+    </div>
 </div>
 
 <div id="Tab3" class="tabcontent">
@@ -54,5 +59,13 @@
     <p>Content for Tab 3</p>
 </div>
 
+<div id="Tab4" class="tabcontent">
+    <!-- Содержимое вкладки 3 -->
+    <p>Content for Tab 3</p>
+</div>
+
+<div id="notification" class="notification hide">
+    <p id="notification-message">Офер успешно создан!</p>
+  </div>
 </body>
 </html>
