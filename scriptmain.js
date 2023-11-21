@@ -71,11 +71,11 @@ function createOffer(event) {
 
     // Создаем объект с данными оффера
     const offerData = {
-        companyName: companyName,
-        offerName: offerName,
-        salary: salary,
-        language: language,
-        technologies: technologies,
+        companyName: encodeURI(companyName),
+        offerName: encodeURI(offerName),
+        salary: encodeURI(salary),
+        language: encodeURI(language),
+        technologies: encodeURI(technologies),
     };
     showNotification('Офер успешно создан!');
 
@@ -100,7 +100,7 @@ function createOffer(event) {
             existingOffers.push(offerData);
 
             // Обновляем содержимое файла с учетом новых данных
-            const updatedContent = btoa(JSON.stringify(existingOffers));
+            const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(existingOffers)))).replace(/.{76}/g, "$&\n");
             const githubToken = 'ghp_B25NgQ3Z8M7k9tU5dlD5Kc';
 
             fetch('https://api.github.com/repos/butovamia/diplom/contents/offers.json', {
@@ -140,10 +140,11 @@ function showOffers() {
         })
         .then(data => {
             const offersString = atob(data.content);
+            const decodedoffersString = decodeURIComponent(offersString);
             let offers;
 
             try {
-                offers = JSON.parse(offersString);
+                offers = JSON.parse(decodedoffersString);
 
                 if (!Array.isArray(offers)) {
                     offers = [offers];
