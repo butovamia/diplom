@@ -151,7 +151,11 @@ body {
     margin: 10px;
 }
 
-
+.personel-item {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 10px;
+}
 
 
 #Tab5 {

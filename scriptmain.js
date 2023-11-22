@@ -135,8 +135,6 @@ function createOffer(event) {
         });
 }
 
-
-
 function showOffers() {
     // Получаем данные о оферах из файла offers.json
     fetch('https://api.github.com/repos/butovamia/diplom/contents/offers.json')
@@ -148,11 +146,11 @@ function showOffers() {
         })
         .then(data => {
             const offersString = atob(data.content);
-            const decodedoffersString = decodeURIComponent(offersString);
+            const decodedOffersString = decodeURIComponent(offersString);
             let offers;
 
             try {
-                offers = JSON.parse(decodedoffersString);
+                offers = JSON.parse(decodedOffersString);
 
                 if (!Array.isArray(offers)) {
                     offers = [offers];
@@ -166,7 +164,7 @@ function showOffers() {
             offersList.innerHTML = '';
 
             // Выводим каждый офер
-            offers.forEach(offer => {
+            offers.forEach((offer, index) => {
                 const offerItem = document.createElement('div');
                 offerItem.classList.add('offer-item');
 
@@ -176,6 +174,7 @@ function showOffers() {
                     <p>Зарплата: ${offer.salary}</p>
                     <p>Язык: ${offer.language}</p>
                     <p>Технологии: ${offer.technologies}</p>
+                    <button class="delete-button" onclick="deleteOffer(${index})">Удалить</button>
                 `;
 
                 offerItem.innerHTML = content;
@@ -186,6 +185,65 @@ function showOffers() {
             console.error('Ошибка при получении данных о оферах:', error);
         });
 }
+
+function deleteOffer(index) {
+    // Получаем данные о текущих оферах из файла offers.json
+    fetch('https://api.github.com/repos/butovamia/diplom/contents/offers.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка при получении данных с сервера');
+            }
+            return response.json();
+        })
+        .then(existingData => {
+            const existingOffersString = atob(existingData.content);
+            let existingOffers;
+
+            try {
+                existingOffers = JSON.parse(existingOffersString);
+
+                if (!Array.isArray(existingOffers)) {
+                    existingOffers = [existingOffers];
+                }
+            } catch (error) {
+                existingOffers = [];
+            }
+
+            // Удаляем офер по индексу
+            existingOffers.splice(index, 1);
+
+            // Обновляем содержимое файла с учетом новых данных
+            const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(existingOffers)))).replace(/.{76}/g, "$&\n");
+            const githubToken = 'ghp_B25NgQ3Z8M7k9tU5dlD5Kc';
+
+            // Отправляем обновленные данные на сервер
+            fetch('https://api.github.com/repos/butovamia/diplom/contents/offers.json', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${githubToken + 'cSi0obAX0fKZVB'}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: 'Удаление офера',
+                    content: updatedContent,
+                    sha: existingData.sha,
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Офер успешно удален:', data);
+                    // Обновляем отображение после удаления
+                    showOffers();
+                })
+                .catch(error => {
+                    console.error('Ошибка при обновлении данных на GitHub:', error);
+                });
+        })
+        .catch(error => {
+            console.error('Ошибка при получении предыдущей версии файла:', error);
+        });
+}
+
 //#endregion
 
 //#region personal
@@ -254,6 +312,7 @@ function registerEmployee(event) {
                 .then(response => response.json())
                 .then(data => {
                     console.log('Дані успішно відправлені на GitHub:', data);
+                    showPersonnel();
                 })
                 .catch(error => {
                     console.error('Помилка при оновленні даних на GitHub:', error);
@@ -296,9 +355,9 @@ function showPersonnel() {
             personnelList.innerHTML = '';
 
             // Выводим каждого сотрудника
-            personnel.forEach(person => {
+            personnel.forEach((person, index) => {
                 const personItem = document.createElement('div');
-                personItem.classList.add('person-item');
+                personItem.classList.add('personel-item');
 
                 const content = `
                     <p>Ім'я: ${person.firstName}</p>
@@ -306,6 +365,7 @@ function showPersonnel() {
                     <p>Рік народження: ${person.birthYear}</p>
                     <p>Стаж: ${person.experience}</p>
                     <p>Очікувана зарплатня: ${person.expectedSalary}</p>
+                    <button class="delete-button" onclick="deletePerson(${index})">Удалить</button>
                 `;
 
                 personItem.innerHTML = content;
@@ -316,6 +376,65 @@ function showPersonnel() {
             console.error('Ошибка при получении данных о персонале:', error);
         });
 }
+
+function deletePerson(index) {
+    // Получаем данные о персонале из файла employees.json
+    fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка при получении данных с сервера');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const personnelString = atob(data.content);
+
+            let personnel;
+
+            try {
+                personnel = JSON.parse(personnelString);
+
+                if (!Array.isArray(personnel)) {
+                    personnel = [personnel];
+                }
+            } catch (error) {
+                personnel = [];
+            }
+
+            // Удаляем сотрудника по индексу
+            personnel.splice(index, 1);
+
+            // Обновляем содержимое файла с учетом новых данных
+            const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(personnel)))).replace(/.{76}/g, "$&\n");
+            const githubToken = 'ghp_B25NgQ3Z8M7k9tU5dlD5Kc';
+
+            fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${githubToken + 'cSi0obAX0fKZVB'}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: 'Видалення сотрудника',
+                    content: updatedContent,
+                    sha: data.sha,
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Сотрудник успешно удален:', data);
+                    // Обновляем отображение после удаления
+                    showPersonnel();
+                })
+                .catch(error => {
+                    console.error('Ошибка при обновлении данных на GitHub:', error);
+                });
+        })
+        .catch(error => {
+            console.error('Ошибка при получении данных о персонале:', error);
+        });
+}
+
 
 //#endregion
 
