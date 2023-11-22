@@ -26,6 +26,16 @@ document.addEventListener('DOMContentLoaded', function () {
     showAcceptedOffers();
 });
 
+// Вызывает функции обновления каждые 3 секунды
+setInterval(() => {
+    showOffers();
+    showPersonnel();
+    showVacancies();
+    showPersonnelForMatching();
+    showAcceptedOffers();
+}, 3000);
+
+
 
 function openTab(evt, tabName) {
     var i, tabcontent, tablinks;
