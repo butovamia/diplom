@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
     showPersonnel();
     showVacancies() 
     showPersonnelForMatching()
+    showAcceptedOffers();
 });
 
 
@@ -82,6 +83,7 @@ function createOffer(event) {
         language: encodeURI(language),
         technologies: encodeURI(technologies),
     };
+
     showNotification('Офер успешно создан!');
 
     // Отправляем данные на сервер (замените на свои данные и укажите правильный путь к offers.json)
@@ -131,8 +133,9 @@ function createOffer(event) {
         .catch(error => {
             console.error('Ошибка при получении предыдущей версии файла:', error);
         });
-
 }
+
+
 
 function showOffers() {
     // Получаем данные о оферах из файла offers.json
@@ -359,6 +362,14 @@ function showVacancies() {
                     <p>Технологии: ${vacancy.technologies}</p>
                 `;
                 vacanciesContainer.appendChild(vacancyItem);
+
+                // Добавляем обработчик события клика на вакансию
+                vacancyItem.addEventListener('click', () => {
+                    // Убираем выделение со всех вакансий
+                    document.querySelectorAll('.vacancy-item').forEach(item => item.classList.remove('selected'));
+                    // Добавляем/удаляем класс "selected" текущей вакансии
+                    vacancyItem.classList.toggle('selected');
+                });
             });
         })
         .catch(error => {
@@ -403,11 +414,19 @@ function showPersonnelForMatching() {
                 personItem.innerHTML = `
                     <p>Ім'я: ${person.firstName}</p>
                     <p>Прізвище: ${person.lastName}</p>
+                    <p>По-батькові: ${person.middleName}</p>
                     <p>Рік народження: ${person.birthYear}</p>
                     <p>Стаж: ${person.experience}</p>
+                    <p>Освоєні технології: ${person.employeeTechnologies}</p>
                     <p>Очікувана зарплатня: ${person.expectedSalary}</p>
                 `;
                 personnelContainer.appendChild(personItem);
+
+                // Добавляем обработчик события клика на сотрудника
+                personItem.addEventListener('click', () => {
+                    // Переключаем класс "selected" для текущего сотрудника
+                    personItem.classList.toggle('selected');
+                });
             });
         })
         .catch(error => {
@@ -415,22 +434,21 @@ function showPersonnelForMatching() {
         });
 }
 
-
 function handleMatchingConfirmation() {
     // Получаем выбранную вакансию и выбранных сотрудников
     const selectedVacancy = document.querySelector('.vacancy-item.selected');
-    const selectedEmployees = document.querySelectorAll('.employee-item.selected');
+    const selectedEmployees = document.querySelectorAll('.person-item.selected');
 
     // Проверяем, что вакансия и сотрудники выбраны
     if (selectedVacancy && selectedEmployees.length > 0) {
         // Создаем объект для хранения данных о подтвержденных соответствиях
         const confirmedMatches = {
             vacancy: {
-                companyName: selectedVacancy.dataset.companyName,
-                offerName: selectedVacancy.dataset.offerName,
-                salary: selectedVacancy.dataset.salary,
-                language: selectedVacancy.dataset.language,
-                technologies: selectedVacancy.dataset.technologies,
+                companyName: selectedVacancy.querySelector('p:nth-child(1)').textContent,
+                offerName: selectedVacancy.querySelector('p:nth-child(2)').textContent,
+                salary: selectedVacancy.querySelector('p:nth-child(3)').textContent,
+                language: selectedVacancy.querySelector('p:nth-child(4)').textContent,
+                technologies: selectedVacancy.querySelector('p:nth-child(5)').textContent,
             },
             employees: [],
         };
@@ -438,18 +456,18 @@ function handleMatchingConfirmation() {
         // Добавляем данные о каждом выбранном сотруднике
         selectedEmployees.forEach(employee => {
             confirmedMatches.employees.push({
-                firstName: employee.dataset.firstName,
-                lastName: employee.dataset.lastName,
-                middleName: employee.dataset.middleName,
-                birthYear: employee.dataset.birthYear,
-                experience: employee.dataset.experience,
-                technologies: employee.dataset.technologies,
-                expectedSalary: employee.dataset.expectedSalary,
+                firstName: employee.querySelector('p:nth-child(1)').textContent,
+                lastName: employee.querySelector('p:nth-child(2)').textContent,
+                middleName: employee.querySelector('p:nth-child(3)').textContent,
+                birthYear: employee.querySelector('p:nth-child(4)').textContent,
+                experience: employee.querySelector('p:nth-child(5)').textContent,
+                technologies: employee.querySelector('p:nth-child(6)').textContent,
+                expectedSalary: employee.querySelector('p:nth-child(7)').textContent,
             });
         });
 
-        // Здесь вы можете выполнить необходимые действия с подтвержденными соответствиями,
-        // например, отправить данные на сервер, обновить файлы и т. д.
+        // Сохраняем подтвержденные соответствия
+        saveDataToAcceptedOffers(confirmedMatches);
 
         // После завершения операций очищаем выбранных сотрудников и вакансию
         selectedEmployees.forEach(employee => {
@@ -465,12 +483,72 @@ function handleMatchingConfirmation() {
 
         // Обновляем отображение вакансий и персонала
         showVacancies();
-        showPersonnel();
+        showPersonnelForMatching();
     } else {
         // Показываем уведомление, если вакансия или сотрудники не выбраны
         showNotification('Выберите вакансию и хотя бы одного сотрудника для подтверждения.');
     }
 }
+
+
+
+// Функция для сохранения данных в файл acceptedoffers.json
+function saveDataToAcceptedOffers(data) {
+    fetch('https://api.github.com/repos/butovamia/diplom/contents/acceptedoffers.json')
+        .then(response => response.json())
+        .then(existingData => {
+            const existingMatchesString = new TextDecoder('utf-8').decode(Uint8Array.from(atob(existingData.content), c => c.charCodeAt(0)));
+            let existingMatches;
+
+            try {
+                existingMatches = JSON.parse(existingMatchesString);
+
+                if (!Array.isArray(existingMatches)) {
+                    existingMatches = [existingMatches];
+                }
+            } catch (error) {
+                existingMatches = [];
+            }
+
+            // Добавляем новые подтвержденные соответствия
+            existingMatches.push(data);
+
+            // Обновляем содержимое файла с учетом новых данных
+            const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(existingMatches)))).replace(/.{76}/g, "$&\n");
+            const githubToken = 'ghp_B25NgQ3Z8M7k9tU5dlD5Kc';
+
+            fetch('https://api.github.com/repos/butovamia/diplom/contents/acceptedoffers.json', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${githubToken + 'cSi0obAX0fKZVB'}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: 'Добавление новых подтвержденных соответствий',
+                    content: updatedContent,
+                    sha: existingData.sha,
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Данные успешно отправлены на GitHub:', data);
+                })
+                .catch(error => {
+                    console.error('Ошибка при обновлении данных на GitHub:', error);
+                });
+        })
+        .catch(error => {
+            console.error('Ошибка при получении предыдущей версии файла:', error);
+        });
+}
+
+// Код для добавления слушателя события к кнопке
+document.addEventListener('DOMContentLoaded', function () {
+    const confirmButton = document.getElementById('confirmButton5');
+    if (confirmButton) {
+        confirmButton.addEventListener('click', handleMatchingConfirmation);
+    }
+});
 
 // Добавление/удаление класса "selected" при клике на вакансию
 document.addEventListener('click', function(event) {
@@ -496,6 +574,91 @@ document.addEventListener('click', function(event) {
         });
     });
 });
+
+
+//#endregion
+
+//#region endoffers
+
+function showAcceptedOffers() {
+    // Получаем данные о подтвержденных соответствиях из файла acceptedoffers.json
+    fetch('https://api.github.com/repos/butovamia/diplom/contents/acceptedoffers.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка при получении данных с сервера');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const acceptedOffersString = data.content;
+            const decodedAcceptedOffersString = new TextDecoder('utf-8').decode(Uint8Array.from(atob(acceptedOffersString), c => c.charCodeAt(0)));
+            let acceptedOffers;
+
+            try {
+                acceptedOffers = JSON.parse(decodedAcceptedOffersString);
+
+                if (!Array.isArray(acceptedOffers)) {
+                    acceptedOffers = [acceptedOffers];
+                }
+            } catch (error) {
+                acceptedOffers = [];
+            }
+
+            // Очищаем список подтвержденных соответствий
+            const acceptedOffersContainer = document.getElementById('acceptedOffersContainer');
+            acceptedOffersContainer.innerHTML = '';
+
+            // Выводим каждое подтвержденное соответствие
+            acceptedOffers.forEach((match, index) => {
+                const matchItem = document.createElement('div');
+                matchItem.classList.add('match-item');
+                matchItem.id = `match_${index}`;
+
+                // Создаем див для вакансии
+                const vacancyInfo = document.createElement('div');
+                vacancyInfo.classList.add('vacancy-info');
+                vacancyInfo.innerHTML = `
+                    <p>Вакансия:</p>
+                    <p>${match.vacancy.companyName}</p>
+                    <p>${match.vacancy.offerName}</p>
+                    <p>${match.vacancy.salary}</p>
+                    <p>${match.vacancy.language}</p>
+                    <p>${match.vacancy.technologies}</p>
+                `;
+
+                // Добавляем див вакансии в основной элемент
+                matchItem.appendChild(vacancyInfo);
+
+                // Создаем див для сотрудников
+                const employeesInfo = document.createElement('div');
+                employeesInfo.classList.add('employees-info');
+                employeesInfo.innerHTML = '<p>Сотрудники:</p>';
+
+                // Выводим каждого сотрудника для данного подтвержденного соответствия
+                match.employees.forEach(employee => {
+                    const employeeInfo = document.createElement('div');
+                    employeeInfo.classList.add('employee-info');
+                    employeeInfo.innerHTML = `
+                        <p>${employee.firstName}</p>
+                        <p>${employee.lastName}</p>
+                        <p>${employee.birthYear}</p>
+                        <p>${employee.experience}</p>
+                        <p>${employee.expectedSalary}</p>
+                    `;
+                    employeesInfo.appendChild(employeeInfo);
+                });
+
+                // Добавляем див сотрудников в основной элемент
+                matchItem.appendChild(employeesInfo);
+
+                // Добавляем основной элемент в контейнер
+                acceptedOffersContainer.appendChild(matchItem);
+            });
+        })
+        .catch(error => {
+            console.error('Ошибка при получении данных о подтвержденных соответствиях:', error);
+        });
+}
 
 
 //#endregion
