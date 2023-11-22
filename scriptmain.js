@@ -1,4 +1,4 @@
-// scriptmain.js
+//#region interaction
 document.addEventListener('DOMContentLoaded', function () {
     // Получаем данные о пользователе из локального хранилища
     const userDataString = localStorage.getItem('usersData');
@@ -14,13 +14,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // По умолчанию открываем первую вкладку
     document.getElementById("Tab1").style.display = "block";
+    document.getElementById("Tab5").style.display = "none";
 
     // Отображаем оферы при загрузке страницы
     showOffers();
 
     // Отображаем персонал при загрузке страницы
     showPersonnel();
+    showVacancies() 
+    showPersonnelForMatching()
 });
+
 
 function openTab(evt, tabName) {
     var i, tabcontent, tablinks;
@@ -32,7 +36,7 @@ function openTab(evt, tabName) {
     for (i = 0; i < tablinks.length; i++) {
         tablinks[i].className = tablinks[i].className.replace(" active", "");
     }
-    document.getElementById(tabName).style.display = "block";
+    document.getElementById(tabName).style.display = "flex";
     evt.currentTarget.className += " active";
 }
 
@@ -57,8 +61,9 @@ function hideNotification() {
     const notification = document.getElementById('notification');
     notification.classList.add('hide');
 }
+//#endregion
 
-
+//#region offer
 function createOffer(event) {
     event.preventDefault();
 
@@ -178,7 +183,9 @@ function showOffers() {
             console.error('Ошибка при получении данных о оферах:', error);
         });
 }
+//#endregion
 
+//#region personal
 function registerEmployee(event) {
     event.preventDefault();
 
@@ -306,3 +313,189 @@ function showPersonnel() {
             console.error('Ошибка при получении данных о персонале:', error);
         });
 }
+
+//#endregion
+
+//#region vacancies
+function showVacancies() {
+    // Получаем данные о вакансиях из файла offers.json
+    fetch('https://api.github.com/repos/butovamia/diplom/contents/offers.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка при получении данных с сервера');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const vacanciesString = atob(data.content);
+            const decodedVacanciesString = decodeURIComponent(vacanciesString);
+            let vacancies;
+
+            try {
+                vacancies = JSON.parse(decodedVacanciesString);
+
+                if (!Array.isArray(vacancies)) {
+                    vacancies = [vacancies];
+                }
+            } catch (error) {
+                vacancies = [];
+            }
+
+            // Очищаем список вакансий
+            const vacanciesContainer = document.getElementById('vacanciesContainer');
+            vacanciesContainer.innerHTML = '';
+
+            // Выводим каждую вакансию
+            vacancies.forEach((vacancy, index) => {
+                const vacancyItem = document.createElement('div');
+                vacancyItem.classList.add('vacancy-item');
+                vacancyItem.id = `vacancy_${index}`;
+                vacancyItem.draggable = true;
+                vacancyItem.innerHTML = `
+                    <p>Компания: ${vacancy.companyName}</p>
+                    <p>Офер: ${vacancy.offerName}</p>
+                    <p>Зарплата: ${vacancy.salary}</p>
+                    <p>Язык: ${vacancy.language}</p>
+                    <p>Технологии: ${vacancy.technologies}</p>
+                `;
+                vacanciesContainer.appendChild(vacancyItem);
+            });
+        })
+        .catch(error => {
+            console.error('Ошибка при получении данных о вакансиях:', error);
+        });
+}
+
+function showPersonnelForMatching() {
+    // Получаем данные о персонале из файла employees.json
+    fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка при получении данных с сервера');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const personnelString = atob(data.content);
+            const decodedPersonnelString = decodeURIComponent(personnelString);
+            let personnel;
+
+            try {
+                personnel = JSON.parse(decodedPersonnelString);
+
+                if (!Array.isArray(personnel)) {
+                    personnel = [personnel];
+                }
+            } catch (error) {
+                personnel = [];
+            }
+
+            // Очищаем список персонала
+            const personnelContainer = document.getElementById('employeesContainer');
+            personnelContainer.innerHTML = '';
+
+            // Выводим каждого сотрудника
+            personnel.forEach((person, index) => {
+                const personItem = document.createElement('div');
+                personItem.classList.add('person-item');
+                personItem.id = `employee_${index}`;
+                personItem.draggable = true;
+                personItem.innerHTML = `
+                    <p>Ім'я: ${person.firstName}</p>
+                    <p>Прізвище: ${person.lastName}</p>
+                    <p>Рік народження: ${person.birthYear}</p>
+                    <p>Стаж: ${person.experience}</p>
+                    <p>Очікувана зарплатня: ${person.expectedSalary}</p>
+                `;
+                personnelContainer.appendChild(personItem);
+            });
+        })
+        .catch(error => {
+            console.error('Ошибка при получении данных о персонале:', error);
+        });
+}
+
+
+function handleMatchingConfirmation() {
+    // Получаем выбранную вакансию и выбранных сотрудников
+    const selectedVacancy = document.querySelector('.vacancy-item.selected');
+    const selectedEmployees = document.querySelectorAll('.employee-item.selected');
+
+    // Проверяем, что вакансия и сотрудники выбраны
+    if (selectedVacancy && selectedEmployees.length > 0) {
+        // Создаем объект для хранения данных о подтвержденных соответствиях
+        const confirmedMatches = {
+            vacancy: {
+                companyName: selectedVacancy.dataset.companyName,
+                offerName: selectedVacancy.dataset.offerName,
+                salary: selectedVacancy.dataset.salary,
+                language: selectedVacancy.dataset.language,
+                technologies: selectedVacancy.dataset.technologies,
+            },
+            employees: [],
+        };
+
+        // Добавляем данные о каждом выбранном сотруднике
+        selectedEmployees.forEach(employee => {
+            confirmedMatches.employees.push({
+                firstName: employee.dataset.firstName,
+                lastName: employee.dataset.lastName,
+                middleName: employee.dataset.middleName,
+                birthYear: employee.dataset.birthYear,
+                experience: employee.dataset.experience,
+                technologies: employee.dataset.technologies,
+                expectedSalary: employee.dataset.expectedSalary,
+            });
+        });
+
+        // Здесь вы можете выполнить необходимые действия с подтвержденными соответствиями,
+        // например, отправить данные на сервер, обновить файлы и т. д.
+
+        // После завершения операций очищаем выбранных сотрудников и вакансию
+        selectedEmployees.forEach(employee => {
+            employee.classList.remove('selected');
+            // Здесь вы также можете удалить сотрудника из employees.json
+        });
+
+        selectedVacancy.classList.remove('selected');
+        // Здесь вы также можете удалить вакансию из offers.json
+
+        // Показываем уведомление о подтвержденных соответствиях
+        showNotification('Подтверждены соответствия вакансии и сотрудников.');
+
+        // Обновляем отображение вакансий и персонала
+        showVacancies();
+        showPersonnel();
+    } else {
+        // Показываем уведомление, если вакансия или сотрудники не выбраны
+        showNotification('Выберите вакансию и хотя бы одного сотрудника для подтверждения.');
+    }
+}
+
+// Добавление/удаление класса "selected" при клике на вакансию
+document.addEventListener('click', function(event) {
+    const vacancyItem = event.target.closest('.vacancy-item');
+    if (vacancyItem) {
+        // Убираем выделение со всех вакансий
+        document.querySelectorAll('.vacancy-item').forEach(item => item.classList.remove('selected'));
+        // Добавляем/удаляем класс "selected" текущей вакансии
+        vacancyItem.classList.toggle('selected');
+    }
+});
+
+// Добавление/удаление класса "selected" при клике на сотрудника
+document.addEventListener('click', function(event) {
+    const personnelItems = document.querySelectorAll('.person-item');
+
+    // Перебираем каждый элемент персонала
+    personnelItems.forEach(personItem => {
+        // Добавляем обработчик события клика
+        personItem.addEventListener('click', () => {
+            // Переключаем класс "selected" для текущего элемента
+            personItem.classList.toggle('selected');
+        });
+    });
+});
+
+
+//#endregion

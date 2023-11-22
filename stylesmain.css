@@ -2,6 +2,7 @@
 
 body {
     font-family: Arial, sans-serif;
+    margin: 0;
 }
 
 #userInfo {
@@ -150,4 +151,94 @@ body {
     margin: 10px;
     width: 200px;
     flex: 0 0 calc(33.33% - 20px); /* Три колонки на экране */
+}
+
+
+
+
+#Tab5 {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Стили для блока вакансий */
+#vacanciesContainer {
+    width: 45%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.vacancy-item {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: move;
+}
+
+/* Стили для блока персонала */
+#employeesContainer {
+    width: 45%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.person-item {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: move;
+}
+
+/* Стили для зоны перетаскивания */
+#dropZone {
+    width: 100%;
+    padding: 20px;
+    border: 2px dashed #aaa;
+    border-radius: 5px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+/* Стили для кнопки подтверждения */
+#confirmButton {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#confirmButton:hover {
+    background-color: #45a049;
+}
+
+#confirmButton5{
+    position: fixed;
+    bottom: 20px; /* Расстояние от нижней грани экрана */
+    left: 50%;
+    transform: translateX(-50%);
+    height: 50px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease; /* Анимация для плавного перемещения */
+}
+
+#confirmButton5{
+    background-color: #45a049;
+}
+
+/* Добавьте этот стиль в ваш файл CSS */
+.selected {
+    background-color: #3498db; /* Цвет выделения (замените на ваш цвет) */
+    color: #fff; /* Цвет текста внутри выделенного блока (замените на ваш цвет) */
+    border: 2px solid #2980b9; /* Обводка выделенного блока (замените на ваш цвет и стиль) */
 }
