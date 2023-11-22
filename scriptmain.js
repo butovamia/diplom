@@ -613,7 +613,7 @@ function showAcceptedOffers() {
                 const matchItem = document.createElement('div');
                 matchItem.classList.add('match-item');
                 matchItem.id = `match_${index}`;
-
+            
                 // Создаем див для вакансии
                 const vacancyInfo = document.createElement('div');
                 vacancyInfo.classList.add('vacancy-info');
@@ -625,15 +625,15 @@ function showAcceptedOffers() {
                     <p>${match.vacancy.language}</p>
                     <p>${match.vacancy.technologies}</p>
                 `;
-
+            
                 // Добавляем див вакансии в основной элемент
                 matchItem.appendChild(vacancyInfo);
-
+            
                 // Создаем див для сотрудников
                 const employeesInfo = document.createElement('div');
                 employeesInfo.classList.add('employees-info');
                 employeesInfo.innerHTML = '<p>Сотрудники:</p>';
-
+            
                 // Выводим каждого сотрудника для данного подтвержденного соответствия
                 match.employees.forEach(employee => {
                     const employeeInfo = document.createElement('div');
@@ -647,10 +647,20 @@ function showAcceptedOffers() {
                     `;
                     employeesInfo.appendChild(employeeInfo);
                 });
-
+            
                 // Добавляем див сотрудников в основной элемент
                 matchItem.appendChild(employeesInfo);
-
+            
+                // Добавляем кнопку "Удалить"
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Удалить';
+                deleteButton.classList.add('delete-button');
+                deleteButton.addEventListener('click', () => {
+                    // Вызываем функцию удаления по индексу или другому идентификатору
+                    deleteMatch(index); // Замените на ваш метод удаления
+                });
+                matchItem.appendChild(deleteButton);
+            
                 // Добавляем основной элемент в контейнер
                 acceptedOffersContainer.appendChild(matchItem);
             });
@@ -660,5 +670,65 @@ function showAcceptedOffers() {
         });
 }
 
+function deleteMatch(index) {
+    // Получаем данные о подтвержденных соответствиях из файла acceptedoffers.json
+    fetch('https://api.github.com/repos/butovamia/diplom/contents/acceptedoffers.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка при получении данных с сервера');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const acceptedOffersString = data.content;
+            const decodedAcceptedOffersString = new TextDecoder('utf-8').decode(Uint8Array.from(atob(acceptedOffersString), c => c.charCodeAt(0)));
+            let acceptedOffers;
+
+            try {
+                acceptedOffers = JSON.parse(decodedAcceptedOffersString);
+
+                if (!Array.isArray(acceptedOffers)) {
+                    acceptedOffers = [acceptedOffers];
+                }
+            } catch (error) {
+                acceptedOffers = [];
+            }
+
+            // Удаляем подтвержденное соответствие по индексу
+            if (index >= 0 && index < acceptedOffers.length) {
+                acceptedOffers.splice(index, 1);
+
+                // Обновляем файл acceptedoffers.json с учетом удаления
+                const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(acceptedOffers)))).replace(/.{76}/g, "$&\n");
+                const githubToken = 'ghp_B25NgQ3Z8M7k9tU5dlD5Kc';
+
+                fetch('https://api.github.com/repos/butovamia/diplom/contents/acceptedoffers.json', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${githubToken + 'cSi0obAX0fKZVB'}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: 'Удаление подтвержденного соответствия',
+                        content: updatedContent,
+                        sha: data.sha,
+                    }),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Подтвержденное соответствие успешно удалено:', data);
+
+                        // Обновляем отображение
+                        showAcceptedOffers();
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при обновлении данных на GitHub:', error);
+                    });
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при получении данных о подтвержденных соответствиях:', error);
+        });
+}
 
 //#endregion

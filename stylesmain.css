@@ -232,14 +232,15 @@ body {
 #acceptedOffersContainer {
     margin-top: 20px;
     display: flex;
-    gap: 20px;
+    gap: 30px;
     width: 100%;
     flex-wrap: wrap;
+    justify-content: center
 }
 
 /* Стили для каждого подтвержденного соответствия */
 .match-item {
-    border: 1px solid #ccc;
+    border: 3px solid #ccc;
     padding: 10px;
     margin-bottom: 15px;
 }
@@ -251,9 +252,25 @@ body {
     padding-bottom: 10px;
 }
 
+.vacancy-info p:first-child {
+    background-color: #86b85e; /* Цвет фона */
+    color: #fff; /* Цвет текста */
+    padding: 8px 12px; /* Поля вокруг текста */
+    margin: 0; /* Убираем внешние отступы */
+    text-align: center;
+}
+
 /* Стили для информации о сотрудниках */
 .employees-info {
     margin-top: 10px;
+}
+
+.employees-info > p:first-child {
+    background-color: #86b85e; /* Цвет фона */
+    color: #fff; /* Цвет текста */
+    padding: 8px 12px; /* Поля вокруг текста */
+    margin: 0; /* Убираем внешние отступы */
+    text-align: center; /* Выравнивание текста по центру */
 }
 
 .employee-info{
@@ -261,3 +278,22 @@ body {
     margin-bottom: 10px;
     padding-bottom: 10px;
 }
+
+/* Стили для кнопки удаления */
+/* Стили для кнопки удаления */
+.delete-button {
+    background-color: #f44336; /* Красный цвет фона */
+    color: #fff; /* Белый цвет текста */
+    padding: 8px 12px; /* Поля вокруг текста */
+    border: none; /* Убираем границу */
+    border-radius: 4px; /* Закругляем углы */
+    cursor: pointer; /* Делаем курсор указателем */
+    font-size: 14px; /* Размер шрифта */
+    display: block; /* Делаем кнопку блочным элементом */
+    margin: 0 auto; /* Центрируем по горизонтали */
+}
+
+.delete-button:hover {
+    background-color: #d32f2f; /* Изменяем цвет фона при наведении */
+}
+
