@@ -30,7 +30,6 @@ document.addEventListener('DOMContentLoaded', function () {
 setInterval(() => {
     showOffers();
     showPersonnel();
-    showVacancies();
     showAcceptedOffers();
 }, 3000); 
 
