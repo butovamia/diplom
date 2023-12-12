@@ -31,7 +31,7 @@ setInterval(() => {
     showOffers();
     showPersonnel();
     showAcceptedOffers();
-}, 3000); 
+}, 20000); 
 
 
 
