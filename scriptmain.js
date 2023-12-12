@@ -546,7 +546,7 @@ function showPersonnelForMatching() {
                     <p>По-батькові: ${person.middleName}</p>
                     <p>Рік народження: ${person.birthYear}</p>
                     <p>Стаж: ${person.experience}</p>
-                    <p>Освоєні технології: ${person.employeeTechnologies}</p>
+                    <p>Освоєні технології: ${person.technologies}</p>
                     <p>Очікувана зарплатня: ${person.expectedSalary}</p>
                 `;
                 personnelContainer.appendChild(personItem);
