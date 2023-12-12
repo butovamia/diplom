@@ -27,26 +27,12 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-const tab5 = document.getElementById('Tab5');
-
-// Define the function to be executed at intervals
-function intervalOperation() {
+setInterval(() => {
     showOffers();
     showPersonnel();
     showVacancies();
-    showPersonnelForMatching();
     showAcceptedOffers();
-}
-
-// Set the interval with a conditional check
-const intervalId = setInterval(() => {
-    // Check if Tab5 is present in the document
-    const tab5 = document.getElementById('Tab5');
-    
-    if (tab5 && window.getComputedStyle(tab5).display === 'none') {
-        intervalOperation();
-    }
-}, 500); // Check every 500 milliseconds (0.5 seconds)
+}, 3000); 
 
 
 
