@@ -16,7 +16,8 @@ function checkExistingUser(username, password) {
     return fetch('https://api.github.com/repos/butovamia/diplom/contents/users.json')
         .then(response => {
             if (!response.ok) {
-                throw new Error('Ошибка при получении данных с сервера');
+                showNotification('Помилка при отриманні даних із сервера');
+                throw new Error('Помилка при отриманні даних із сервера');
             }
             return response.json();
         })
@@ -60,7 +61,7 @@ function login(event) {
     checkExistingUser(username, password)
         .then(userExists => {
             if (userExists) {
-                console.log("Вход выполнен успешно.");
+                console.log("Вхід виконано успішно.");
 
 
                 // После успешного входа
@@ -72,12 +73,14 @@ function login(event) {
 
                 return true;
             } else {
-                console.log("Пользователь не найден или неверный пароль.");
+                console.log("Користувача не знайдено або неправильний пароль.");
+                showNotification('Користувача не знайдено або неправильний пароль.');
                 return false;
             }
         })
         .catch(error => {
-            console.error('Ошибка при проверке пользователя:', error);
+            console.error('Помилка під час перевірки користувача', error);
+            showNotification('Помилка під час перевірки користувача');
             return false;
         });
 }
@@ -95,9 +98,9 @@ function register(event) {
     checkExistingUser(newUsername)
         .then(exists => {
             if (exists) {
-                console.log("Пользователь уже существует");
+                console.log("Користувач вже існує");
             } else {
-                console.log("Пользователь зарегистрирован с логином: " + newUsername + " и ролью: " + role);
+                console.log("Користувач зареєстрований з логіном: "+ newUsername +" та роллю: "+ role);
                 // Сохраните данные в локальном хранилище или другом месте по вашему выбору
                 saveUserDataLocally(newUsername, newPassword, role);
                 // Отправите данные на GitHub (замените на свои данные)
@@ -105,7 +108,8 @@ function register(event) {
             }
         })
         .catch(error => {
-            console.error('Ошибка при проверке существующего пользователя:', error);
+            showNotification('Помилка під час перевірки існуючого користувача');
+            console.error('Помилка під час перевірки існуючого користувача:', error);
         });
 }
 
@@ -158,8 +162,10 @@ function sendToGitHub(username, password, role) {
             const userExists = existingUsers.some(user => user.username === data.username);
 
             if (userExists) {
-                console.log('Пользователь с таким именем уже существует.');
+                console.log("Користувач із таким ім'ям вже існує.");
+                showNotification("Користувач із таким ім'ям вже існує.");
             } else {
+                showNotification("Користувач зареєстрований");
                 existingUsers.push(data);
 
                 const updatedContent = btoa(JSON.stringify(existingUsers));
@@ -188,4 +194,19 @@ function sendToGitHub(username, password, role) {
         .catch(error => {
             console.error('Ошибка при получении предыдущей версии файла:', error);
         });
+}
+
+function showNotification(message, isSuccess = true) {
+    // Create a notification element
+    const notification = document.createElement('div');
+    notification.className = isSuccess ? 'notification success' : 'notification error';
+    notification.textContent = message;
+
+    // Append the notification to the body
+    document.body.appendChild(notification);
+
+    // Set a timeout to remove the notification after a certain duration (e.g., 3 seconds)
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
 }

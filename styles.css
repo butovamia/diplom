@@ -27,7 +27,7 @@ body {
 }
 
 .tab button {
-    background-color: inherit;
+    /* background-color: inherit; */
     float: left;
     border: none;
     outline: none;
@@ -81,3 +81,51 @@ button:hover {
     background-color: #45a049;
 }
 
+#role {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0 20px;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    border-radius: 4px;
+}
+
+#role:hover {
+    background-color: #ddd;
+}
+
+#role:focus {
+    outline: none;
+    border-color: #45a049;
+}
+
+/* Style for the options within the select dropdown */
+#role option {
+    background-color: #f1f1f1;
+    color: #333;
+}
+
+/* Style for the selected option */
+#role option:checked {
+    background-color: #ccc;
+}
+
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    color: #fff;
+    font-weight: bold;
+    z-index: 9999;
+}
+
+.success {
+    background-color: #4caf50;
+}
+
+.error {
+    background-color: #f44336;
+}
