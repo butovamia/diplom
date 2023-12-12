@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const userData = JSON.parse(userDataString);
 
         // Отображаем данные о пользователе в интерфейсе
-        document.getElementById("username").textContent = `Логин: ${userData.username}`;
+        document.getElementById("username").textContent = `Логін: ${userData.username}`;
         document.getElementById("userRole").textContent = `Роль: ${decodeURIComponent(userData.role)}`;
     }
 
@@ -26,14 +26,28 @@ document.addEventListener('DOMContentLoaded', function () {
     showAcceptedOffers();
 });
 
-// Вызывает функции обновления каждые 3 секунды
-setInterval(() => {
+
+const tab5 = document.getElementById('Tab5');
+
+// Define the function to be executed at intervals
+function intervalOperation() {
     showOffers();
     showPersonnel();
     showVacancies();
     showPersonnelForMatching();
     showAcceptedOffers();
-}, 3000);
+}
+
+// Set the interval with a conditional check
+const intervalId = setInterval(() => {
+    // Check if Tab5 is present in the document
+    const tab5 = document.getElementById('Tab5');
+    
+    if (tab5 && window.getComputedStyle(tab5).display === 'none') {
+        intervalOperation();
+    }
+}, 500); // Check every 500 milliseconds (0.5 seconds)
+
 
 
 
@@ -179,12 +193,12 @@ function showOffers() {
                 offerItem.classList.add('offer-item');
 
                 const content = `
-                    <p>Компания: ${offer.companyName}</p>
-                    <p>Офер: ${offer.offerName}</p>
+                    <p>Компанія: ${offer.companyName}</p>
+                    <p>Оффер: ${offer.offerName}</p>
                     <p>Зарплата: ${offer.salary}</p>
-                    <p>Язык: ${offer.language}</p>
-                    <p>Технологии: ${offer.technologies}</p>
-                    <button class="delete-button" onclick="deleteOffer(${index})">Удалить</button>
+                    <p>Мова: ${offer.language}</p>
+                    <p>Технології: ${offer.technologies}</p>
+                    <button class="delete-button" onclick="deleteOffer(${index})">Видалити</button>
                 `;
 
                 offerItem.innerHTML = content;
@@ -432,7 +446,7 @@ function deletePerson(index) {
             })
                 .then(response => response.json())
                 .then(data => {
-                    console.log('Сотрудник успешно удален:', data);
+                    console.log('Співробітник успішно видалено:', data);
                     // Обновляем отображение после удаления
                     showPersonnel();
                 })
@@ -484,11 +498,11 @@ function showVacancies() {
                 vacancyItem.id = `vacancy_${index}`;
                 vacancyItem.draggable = true;
                 vacancyItem.innerHTML = `
-                    <p>Компания: ${vacancy.companyName}</p>
-                    <p>Офер: ${vacancy.offerName}</p>
+                    <p>Компанія: ${vacancy.companyName}</p>
+                    <p>Оффер: ${vacancy.offerName}</p>
                     <p>Зарплата: ${vacancy.salary}</p>
-                    <p>Язык: ${vacancy.language}</p>
-                    <p>Технологии: ${vacancy.technologies}</p>
+                    <p>Мова: ${vacancy.language}</p>
+                    <p>Технології: ${vacancy.technologies}</p>
                 `;
                 vacanciesContainer.appendChild(vacancyItem);
 
@@ -608,14 +622,14 @@ function handleMatchingConfirmation() {
         // Здесь вы также можете удалить вакансию из offers.json
 
         // Показываем уведомление о подтвержденных соответствиях
-        showNotification('Подтверждены соответствия вакансии и сотрудников.');
+        showNotification('Підтверджено відповідність вакансії та співробітників');
 
         // Обновляем отображение вакансий и персонала
         showVacancies();
         showPersonnelForMatching();
     } else {
         // Показываем уведомление, если вакансия или сотрудники не выбраны
-        showNotification('Выберите вакансию и хотя бы одного сотрудника для подтверждения.');
+        showNotification('Виберіть вакансію та хоча б одного співробітника для підтвердження');
     }
 }
 
@@ -747,7 +761,7 @@ function showAcceptedOffers() {
                 const vacancyInfo = document.createElement('div');
                 vacancyInfo.classList.add('vacancy-info');
                 vacancyInfo.innerHTML = `
-                    <p>Вакансия:</p>
+                    <p>Вакансія:</p>
                     <p>${match.vacancy.companyName}</p>
                     <p>${match.vacancy.offerName}</p>
                     <p>${match.vacancy.salary}</p>
@@ -761,7 +775,7 @@ function showAcceptedOffers() {
                 // Создаем див для сотрудников
                 const employeesInfo = document.createElement('div');
                 employeesInfo.classList.add('employees-info');
-                employeesInfo.innerHTML = '<p>Сотрудники:</p>';
+                employeesInfo.innerHTML = '<p>Співробітники:</p>';
             
                 // Выводим каждого сотрудника для данного подтвержденного соответствия
                 match.employees.forEach(employee => {
@@ -782,7 +796,7 @@ function showAcceptedOffers() {
             
                 // Добавляем кнопку "Удалить"
                 const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Удалить';
+                deleteButton.textContent = 'Видалити';
                 deleteButton.classList.add('delete-button');
                 deleteButton.addEventListener('click', () => {
                     // Вызываем функцию удаления по индексу или другому идентификатору
