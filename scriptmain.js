@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
     showOffers();
 
     // Відображаємо персонал під час завантаження сторінки
-    showPersonnel();
+    showRooms();
     showVacancies() 
     showPersonnelForMatching()
     showAcceptedOffers();
@@ -186,7 +186,7 @@ function showOffers() {
                         <p>Категорія приладу: ${offer.deviceCategory}</p>
                         <p>Ціна: ${offer.price}</p>
                         <p>Опис: ${offer.description}</p>
-                        <img src="${offer.photo}" alt="Фото приладу"> 
+                        <img src="${offer.photo}" class="zoomable-image" alt="Фото приладу"> 
                         <button class="delete-button" onclick="deleteOffer(${index})">Видалити</button>
                     `;
 
@@ -269,193 +269,440 @@ function deleteOffer(index) {
 //#endregion
 
 //#region personal
-function registerEmployee(event) {
-    event.preventDefault();
+    // Змінна для відстеження кількості полів для кімнат
+    let roomCounter = 1;
 
-    //Отримуємо значення полів із форми
-    const firstName = document.getElementById("firstName").value;
-    const lastName = document.getElementById("lastName").value;
-    const middleName = document.getElementById("middleName").value;
-    const birthYear = document.getElementById("birthYear").value;
-    const experience = document.getElementById("experience").value;
-    const employeeTechnologies = document.getElementById("employeeTechnologies").value;
-    const expectedSalary = document.getElementById("expectedSalary").value;
+    // Функція для додавання нового поля для введення даних про кімнату
+    function addRoomField() {
+        const roomFields = document.getElementById('roomFields');
 
-    // Створюємо об'єкт із даними про співробітника
-    const employeeData = {
-        firstName: encodeURI(firstName),
-        lastName: encodeURI(lastName),
-        middleName: encodeURI(middleName),
-        birthYear: encodeURI(birthYear),
-        experience: encodeURI(experience),
-        technologies: encodeURI(employeeTechnologies),
-        expectedSalary: encodeURI(expectedSalary),
-    };
+        const roomField = document.createElement('div');
+        roomField.innerHTML = `
+            <label for="roomName${roomCounter}">Назва кімнати ${roomCounter}:</label>
+            <input type="text" id="roomName${roomCounter}" required>
+            <label for="roomArea${roomCounter}">Площа кімнати ${roomCounter} (м²):</label>
+            <input type="number" id="roomArea${roomCounter}" required min="0">
+        `;
+
+        roomFields.appendChild(roomField);
+        roomCounter++;
+    }
+
+    // Функція для збору даних про кімнати та їх відправки на сервер
+    function submitRooms(event) {
+        event.preventDefault();
+    
+        const roomsData = [];
+    
+        for (let i = 1; i < roomCounter; i++) {
+            const roomName = document.getElementById(`roomName${i}`).value;
+            const roomArea = document.getElementById(`roomArea${i}`).value;
+            const apartmentId = document.getElementById('apartmentId').value; // Додатково зчитуємо id квартири
+            const apartmentImage = document.getElementById('apartmentImage').value; // Додатково зчитуємо посилання на картинку квартири
+    
+            roomsData.push({
+                roomName: encodeURI(roomName),
+                roomArea: encodeURI(roomArea),
+                apartmentId: encodeURI(apartmentId), // Додаємо ідентифікатор квартири для кожної кімнати
+                apartmentImage: encodeURI(apartmentImage), // Додаємо посилання на зображення квартири
+            });
+        }
+    
+        // Отримуємо дані про квартири з сервера
+        fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
+            .then(response => response.json())
+            .then(existingData => {
+                const existingApartmentsString = atob(existingData.content);
+                let existingApartments;
+    
+                try {
+                    existingApartments = JSON.parse(existingApartmentsString);
+    
+                    if (!Array.isArray(existingApartments)) {
+                        existingApartments = [existingApartments];
+                    }
+                } catch (error) {
+                    existingApartments = [];
+                }
+    
+                // Шукаємо квартиру з відповідним id
+                const apartmentIndex = existingApartments.findIndex(apartment => apartment.id === roomsData[0].apartmentId);
+    
+                if (apartmentIndex !== -1) { // Якщо знайдено квартиру з відповідним id
+                    // Додаємо кімнати до відповідної квартири
+                    if (!existingApartments[apartmentIndex].rooms) {
+                        existingApartments[apartmentIndex].rooms = [];
+                    }
+                    roomsData.forEach(room => {
+                        existingApartments[apartmentIndex].rooms.push(room);
+                    });
+                } else {
+                    // Створюємо нову квартиру та додаємо кімнати до неї
+                    const newApartment = {
+                        id: roomsData[0].apartmentId,
+                        image: roomsData[0].apartmentImage, // Додаємо посилання на зображення квартири
+                        rooms: roomsData,
+                    };
+                    existingApartments.push(newApartment);
+                }
+    
+                // Оновлюємо вміст файлу з урахуванням нових даних
+                const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(existingApartments)))).replace(/.{76}/g, "$&\n");
+                const githubToken = 'ghp_9XtTEFkHDDfhiY3Iik1O63';
+    
+                fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${githubToken + 'IGHVFxc41z25Xe'}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: 'Додавання нових кімнат',
+                        content: updatedContent,
+                        sha: existingData.sha,
+                    }),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Дані успішно відправлені на GitHub:', data);
+                        // Оновлюємо відображення після додавання кімнат
+                        // Можна додати додатковий функціонал для оновлення відображення, якщо потрібно
+                    })
+                    .catch(error => {
+                        console.error('Помилка при оновленні даних на GitHub:', error);
+                    });
+            })
+            .catch(error => {
+                console.error('Помилка при отриманні попередньої версії файлу:', error);
+            });
+    
+        showNotification('Кімнати успішно збережені!');
+    }
+    
+    
     
 
-    // Надсилаємо дані на сервер (замініть на свої дані та вкажіть правильний шлях до employees.json)
-    fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
-        .then(response => response.json())
-        .then(existingData => {
-            const existingEmployeesString = atob(existingData.content);
-            let existingEmployees;
-
-            try {
-                existingEmployees = JSON.parse(existingEmployeesString);
-
-                if (!Array.isArray(existingEmployees)) {
-                    existingEmployees = [existingEmployees];
+    function showRooms() {
+        // Отримуємо дані про квартири із файлу apartments.json
+        fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Помилка при отриманні даних із сервера');
                 }
-            } catch (error) {
-                existingEmployees = [];
-            }
-
-            // Додаємо нового співробітника
-            existingEmployees.push(employeeData);
-
-            // Оновлюємо вміст файлу з урахуванням нових даних
-            const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(existingEmployees)))).replace(/.{76}/g, "$&\n");
-            const githubToken = 'ghp_9XtTEFkHDDfhiY3Iik1O63';
-            console.log('Отправляемые данные:', JSON.stringify(existingEmployees));
-
-            fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json', {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${githubToken + 'IGHVFxc41z25Xe'}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    message: 'Додавання нового співробітника',
-                    content: updatedContent,
-                    sha: existingData.sha,
-                }),
+                return response.json();
             })
-
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Дані успішно відправлені на GitHub:', data);
-                    showPersonnel();
-                })
-                .catch(error => {
-                    console.error('Ошибка при оновленні даних на GitHub:', error);
-                });
-        })
-        .catch(error => {
-            console.error('Ошибка при отриманні попередньої версії файлу:', error);
-        });
-
-    showNotification('Працівник успішно зареєстрований!');
-}
-
-function showPersonnel() {
-    // Отримуємо дані про персонал із файлу employees.json
-    fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Помилка при отриманні даних із сервера');
-            }
-            return response.json();
-        })
-        .then(data => {
-            const personnelString = atob(data.content);
-            const decodedPersonnelString = decodeURIComponent(personnelString);
-
-            let personnel;
-
-            try {
-                personnel = JSON.parse(decodedPersonnelString);
-
-                if (!Array.isArray(personnel)) {
-                    personnel = [personnel];
+            .then(data => {
+                const apartmentsString = atob(data.content);
+                const decodedApartmentsString = decodeURIComponent(apartmentsString);
+    
+                let apartments;
+    
+                try {
+                    apartments = JSON.parse(decodedApartmentsString);
+    
+                    if (!Array.isArray(apartments)) {
+                        apartments = [apartments];
+                    }
+                } catch (error) {
+                    apartments = [];
                 }
-            } catch (error) {
-                personnel = [];
-            }
-
-            // Очищаємо список персоналу
-            const personnelList = document.getElementById('personnelList');
-            personnelList.innerHTML = '';
-
-            // Виводимо кожного співробітника
-            personnel.forEach((person, index) => {
-                const personItem = document.createElement('div');
-                personItem.classList.add('personel-item');
-
-                const content = `
-                    <p>Ім'я: ${person.firstName}</p>
-                    <p>Прізвище: ${person.lastName}</p>
-                    <p>Рік народження: ${person.birthYear}</p>
-                    <p>Стаж: ${person.experience}</p>
-                    <p>Очікувана зарплатня: ${person.expectedSalary}</p>
-                    <button class="delete-button" onclick="deletePerson(${index})">Удалить</button>
-                `;
-
-                personItem.innerHTML = content;
-                personnelList.appendChild(personItem);
+    
+                // Очищаємо список квартир
+                const apartmentsList = document.getElementById('roomsList');
+                apartmentsList.innerHTML = '';
+    
+                // Виводимо кожну квартиру
+                apartments.forEach((apartment, index) => {
+                    const apartmentItem = document.createElement('div');
+                    apartmentItem.classList.add('apartment-item');
+    
+                    const roomsContent = apartment.rooms.map(room => `
+                        <p>Назва кімнати: ${room.roomName}</p>
+                        <p>Площа кімнати: ${room.roomArea} м²</p>
+                    `).join('');
+    
+                    const content = `
+                        <div class="apartment-info">
+                            <p>Квартира №${apartment.id}</p>
+                            ${roomsContent}
+                            <img class="zoomable-image" src="${apartment.image}" alt="Картинка квартири">
+                        </div>
+                        <button class="delete-button" onclick="deleteApartment(${index})">Видалити квартиру</button>
+                    `;
+    
+                    apartmentItem.innerHTML = content;
+                    apartmentsList.appendChild(apartmentItem);
+                });
+    
+                // Викликаємо функцію для приближення зображень
+                setupImageZoom();
+            })
+            .catch(error => {
+                console.error('Помилка при отриманні даних про квартири:', error);
             });
-        })
-        .catch(error => {
-            console.error('Помилка при отриманні даних про персонал:', error);
+    }
+    
+    function setupImageZoom() {
+        const zoomableImages = document.querySelectorAll('.zoomable-image');
+        zoomableImages.forEach(image => {
+            image.addEventListener('click', () => {
+                image.classList.toggle('zoomed');
+            });
         });
-}
-
-function deletePerson(index) {
-    // Отримуємо дані про персонал із файлу employees.json
-    fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Помилка при отриманні даних із сервера');
-            }
-            return response.json();
-        })
-        .then(data => {
-            const personnelString = atob(data.content);
-
-            let personnel;
-
-            try {
-                personnel = JSON.parse(personnelString);
-
-                if (!Array.isArray(personnel)) {
-                    personnel = [personnel];
+    }
+    
+    // Викликаємо функцію для показу квартир при завантаженні сторінки
+    showRooms();
+    
+    
+    function deleteApartment(index) {
+        // Отримуємо дані про квартири із файлу apartments.json
+        fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Помилка при отриманні даних із сервера');
                 }
-            } catch (error) {
-                personnel = [];
-            }
-
-            // Видаляємо співробітника за індексом                  
-            personnel.splice(index, 1);
-
-            // Оновлюємо вміст файлу з урахуванням нових даних
-            const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(personnel)))).replace(/.{76}/g, "$&\n");
-            const githubToken = 'ghp_9XtTEFkHDDfhiY3Iik1O63';
-
-            fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json', {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${githubToken + 'IGHVFxc41z25Xe'}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    message: 'Видалення співробітника',
-                    content: updatedContent,
-                    sha: data.sha,
-                }),
+                return response.json();
             })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Співробітник успішно видалено:', data);
-                    // Оновлюємо відображення після видалення
-                    showPersonnel();
+            .then(data => {
+                const apartmentsString = atob(data.content);
+    
+                let apartments;
+    
+                try {
+                    apartments = JSON.parse(apartmentsString);
+    
+                    if (!Array.isArray(apartments)) {
+                        apartments = [apartments];
+                    }
+                } catch (error) {
+                    apartments = [];
+                }
+    
+                // Видаляємо квартиру за індексом
+                apartments.splice(index, 1);
+    
+                // Оновлюємо вміст файлу з урахуванням нових даних
+                const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(apartments)))).replace(/.{76}/g, "$&\n");
+                const githubToken = 'ghp_9XtTEFkHDDfhiY3Iik1O63';
+    
+                fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${githubToken + 'IGHVFxc41z25Xe'}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: 'Видалення квартири',
+                        content: updatedContent,
+                        sha: data.sha,
+                    }),
                 })
-                .catch(error => {
-                    console.error('Помилка при оновленні даних на GitHub:', error);
-                });
-        })
-        .catch(error => {
-            console.error('Помилка при отриманні даних про персонал:', error);
-        });
-}
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Квартиру успішно видалено:', data);
+                        // Оновлюємо відображення після видалення
+                        showRooms();
+                    })
+                    .catch(error => {
+                        console.error('Помилка при оновленні даних на GitHub:', error);
+                    });
+            })
+            .catch(error => {
+                console.error('Помилка при отриманні даних про квартири:', error);
+            });
+    }
+    
+    
+    
+
+// function registerEmployee(event) {
+//     event.preventDefault();
+
+//     //Отримуємо значення полів із форми
+//     const firstName = document.getElementById("firstName").value;
+//     const lastName = document.getElementById("lastName").value;
+//     const middleName = document.getElementById("middleName").value;
+//     const birthYear = document.getElementById("birthYear").value;
+//     const experience = document.getElementById("experience").value;
+//     const employeeTechnologies = document.getElementById("employeeTechnologies").value;
+//     const expectedSalary = document.getElementById("expectedSalary").value;
+
+//     // Створюємо об'єкт із даними про співробітника
+//     const employeeData = {
+//         firstName: encodeURI(firstName),
+//         lastName: encodeURI(lastName),
+//         middleName: encodeURI(middleName),
+//         birthYear: encodeURI(birthYear),
+//         experience: encodeURI(experience),
+//         technologies: encodeURI(employeeTechnologies),
+//         expectedSalary: encodeURI(expectedSalary),
+//     };
+    
+
+//     // Надсилаємо дані на сервер (замініть на свої дані та вкажіть правильний шлях до employees.json)
+//     fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
+//         .then(response => response.json())
+//         .then(existingData => {
+//             const existingEmployeesString = atob(existingData.content);
+//             let existingEmployees;
+
+//             try {
+//                 existingEmployees = JSON.parse(existingEmployeesString);
+
+//                 if (!Array.isArray(existingEmployees)) {
+//                     existingEmployees = [existingEmployees];
+//                 }
+//             } catch (error) {
+//                 existingEmployees = [];
+//             }
+
+//             // Додаємо нового співробітника
+//             existingEmployees.push(employeeData);
+
+//             // Оновлюємо вміст файлу з урахуванням нових даних
+//             const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(existingEmployees)))).replace(/.{76}/g, "$&\n");
+//             const githubToken = 'ghp_9XtTEFkHDDfhiY3Iik1O63';
+//             console.log('Отправляемые данные:', JSON.stringify(existingEmployees));
+
+//             fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json', {
+//                 method: 'PUT',
+//                 headers: {
+//                     'Authorization': `Bearer ${githubToken + 'IGHVFxc41z25Xe'}`,
+//                     'Content-Type': 'application/json',
+//                 },
+//                 body: JSON.stringify({
+//                     message: 'Додавання нового співробітника',
+//                     content: updatedContent,
+//                     sha: existingData.sha,
+//                 }),
+//             })
+
+//                 .then(response => response.json())
+//                 .then(data => {
+//                     console.log('Дані успішно відправлені на GitHub:', data);
+//                     showPersonnel();
+//                 })
+//                 .catch(error => {
+//                     console.error('Ошибка при оновленні даних на GitHub:', error);
+//                 });
+//         })
+//         .catch(error => {
+//             console.error('Ошибка при отриманні попередньої версії файлу:', error);
+//         });
+
+//     showNotification('Працівник успішно зареєстрований!');
+// }
+
+// function showPersonnel() {
+//     // Отримуємо дані про персонал із файлу employees.json
+//     fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
+//         .then(response => {
+//             if (!response.ok) {
+//                 throw new Error('Помилка при отриманні даних із сервера');
+//             }
+//             return response.json();
+//         })
+//         .then(data => {
+//             const personnelString = atob(data.content);
+//             const decodedPersonnelString = decodeURIComponent(personnelString);
+
+//             let personnel;
+
+//             try {
+//                 personnel = JSON.parse(decodedPersonnelString);
+
+//                 if (!Array.isArray(personnel)) {
+//                     personnel = [personnel];
+//                 }
+//             } catch (error) {
+//                 personnel = [];
+//             }
+
+//             // Очищаємо список персоналу
+//             const personnelList = document.getElementById('personnelList');
+//             personnelList.innerHTML = '';
+
+//             // Виводимо кожного співробітника
+//             personnel.forEach((person, index) => {
+//                 const personItem = document.createElement('div');
+//                 personItem.classList.add('personel-item');
+
+//                 const content = `
+//                     <p>Ім'я: ${person.firstName}</p>
+//                     <p>Прізвище: ${person.lastName}</p>
+//                     <p>Рік народження: ${person.birthYear}</p>
+//                     <p>Стаж: ${person.experience}</p>
+//                     <p>Очікувана зарплатня: ${person.expectedSalary}</p>
+//                     <button class="delete-button" onclick="deletePerson(${index})">Удалить</button>
+//                 `;
+
+//                 personItem.innerHTML = content;
+//                 personnelList.appendChild(personItem);
+//             });
+//         })
+//         .catch(error => {
+//             console.error('Помилка при отриманні даних про персонал:', error);
+//         });
+// }
+
+// function deletePerson(index) {
+//     // Отримуємо дані про персонал із файлу employees.json
+//     fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
+//         .then(response => {
+//             if (!response.ok) {
+//                 throw new Error('Помилка при отриманні даних із сервера');
+//             }
+//             return response.json();
+//         })
+//         .then(data => {
+//             const personnelString = atob(data.content);
+
+//             let personnel;
+
+//             try {
+//                 personnel = JSON.parse(personnelString);
+
+//                 if (!Array.isArray(personnel)) {
+//                     personnel = [personnel];
+//                 }
+//             } catch (error) {
+//                 personnel = [];
+//             }
+
+//             // Видаляємо співробітника за індексом                  
+//             personnel.splice(index, 1);
+
+//             // Оновлюємо вміст файлу з урахуванням нових даних
+//             const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(personnel)))).replace(/.{76}/g, "$&\n");
+//             const githubToken = 'ghp_9XtTEFkHDDfhiY3Iik1O63';
+
+//             fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json', {
+//                 method: 'PUT',
+//                 headers: {
+//                     'Authorization': `Bearer ${githubToken + 'IGHVFxc41z25Xe'}`,
+//                     'Content-Type': 'application/json',
+//                 },
+//                 body: JSON.stringify({
+//                     message: 'Видалення співробітника',
+//                     content: updatedContent,
+//                     sha: data.sha,
+//                 }),
+//             })
+//                 .then(response => response.json())
+//                 .then(data => {
+//                     console.log('Співробітник успішно видалено:', data);
+//                     // Оновлюємо відображення після видалення
+//                     showPersonnel();
+//                 })
+//                 .catch(error => {
+//                     console.error('Помилка при оновленні даних на GitHub:', error);
+//                 });
+//         })
+//         .catch(error => {
+//             console.error('Помилка при отриманні даних про персонал:', error);
+//         });
+// }
 
 
 //#endregion

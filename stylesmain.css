@@ -341,3 +341,43 @@ body {
     max-width: 100%; /* Максимальна ширина фотографії */
     margin-bottom: 8px; /* Зовнішні відступи між фотографією та кнопкою */
 }
+
+.apartment-item {
+    border: 1px solid #ccc;
+    margin: 10px;
+    padding: 10px;
+}
+
+.apartment-info {
+    margin-bottom: 10px;
+}
+
+.room-item {
+    margin-bottom: 5px;
+}
+
+#roomsList {
+    display: flex;
+    flex-direction: row;
+}
+
+.delete-button {
+    background-color: #ff0000;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.delete-button:hover {
+    background-color: #cc0000;
+}
+
+.zoomable-image {
+    transition: transform 0.3s ease;
+}
+
+.zoomable-image.zoomed {
+    transform: scale(2);
+}
