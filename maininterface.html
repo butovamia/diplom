@@ -16,42 +16,48 @@
 </div>
 
 <div class="tab">
-    <button id="tab1Btn" class="tablinks" onclick="openTab(event, 'Tab1')">Реєстрація нових оферів</button>
-    <button id="tab2Btn" class="tablinks" onclick="openTab(event, 'Tab2')">Перегляд оферів</button>
-    <button id="tab3Btn" class="tablinks" onclick="openTab(event, 'Tab3')">Реєстрація працівників</button>
-    <button id="tab4Btn" class="tablinks" onclick="openTab(event, 'Tab4')">Перегляд персоналу</button>
+    <button id="tab1Btn" class="tablinks" onclick="openTab(event, 'Tab1')">Реєстрація приладів</button>
+    <button id="tab2Btn" class="tablinks" onclick="openTab(event, 'Tab2')">Перегляд приладів</button>
+    <button id="tab3Btn" class="tablinks" onclick="openTab(event, 'Tab3')">Реєстрація квартир</button>
+    <button id="tab4Btn" class="tablinks" onclick="openTab(event, 'Tab4')">Перегляд квартир</button>
     <button id="tab5Btn" class="tablinks" onclick="openTab(event, 'Tab5')">Підбір персоналу</button>
     <button id="tab6Btn" class="tablinks" onclick="openTab(event, 'Tab6')">Працюючий персонал</button>
 </div>
 
 <div id="Tab1" class="tabcontent">
     <div id="offerForm">
-        <h3>Створити новий оффер</h3>
+        <h3>Створити новий прилад</h3>
         <form onsubmit="createOffer(event)">
-            <label for="companyName">Назва компанії:</label>
-            <input type="text" id="companyName" required>
+            <label for="deviceName">Назва приладу:</label>
+            <input type="text" id="deviceName" required>
 
-            <label for="offerName">Назва офферу:</label>
-            <input type="text" id="offerName" required>
+            <label for="deviceCategory">Категорія приладу:</label>
+            <select id="deviceCategory" required>
+                <option value="">Оберіть категорію</option>
+                <option value="Датчики">Датчики</option>
+                <option value="Колонки">Колонки</option>
+                <option value="Зволожувачі">Зволожувачі</option>
+                <option value="Світло">Світло</option>
+            </select>
 
-            <label for="salary">Зарплата:</label>
-            <input type="text" id="salary" required>
+            <label for="price">Ціна:</label>
+            <input type="text" id="price" required>
 
-            <label for="language">Мова вакансії:</label>
-            <input type="text" id="language" required>
+            <label for="description">Опис:</label>
+            <input type="text" id="description" required>
 
-            <label for="technologies">Необхідні технології:</label>
-            <input type="text" id="technologies" required>
+            <label for="photo">Фото:</label>
+            <input type="text" id="photo" required>
 
-            <button type="submit">Створити оффер</button>
+            <button type="submit">Створити прилад</button>
         </form>
     </div>
 </div>
 
 <div id="Tab2" class="tabcontent">
-    <!-- Содержимое вкладки 2 -->
+    <!-- Вміст вкладки 2 -->
     <div id="offerList">
-        <h3>Список офферів</h3>
+        <h3>Список приладів</h3>
         <ul id="offers"></ul>
     </div>
 </div>
@@ -87,14 +93,14 @@
 </div>
 
 <div id="Tab4" class="tabcontent">
-    <!-- Содержимое вкладки 4 -->
+    <!-- Вміст вкладки 4 -->
     <div id="personnelList">
         <ul id="personnel"></ul>
     </div>
 </div>
 
 <div id="Tab5" class="tabcontent">
-    <!-- Вкладка "Подбор персонала" -->
+    <!-- Вкладка "Підбір персоналу" -->
     <div id="vacanciesContainer">
         <!-- Контейнер для вакансий -->
     </div>
@@ -107,7 +113,7 @@
 
 <div id="Tab6" class="tabcontent">
     <div id="acceptedOffersContainer">
-        <!-- Сюда будет добавлено содержимое acceptedoffers.json -->
+        <!-- Сюди буде додано вміст acceptedoffers.json -->
     </div>
 </div>
 

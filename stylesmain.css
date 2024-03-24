@@ -77,6 +77,32 @@ body {
 }
 
 
+#offerForm select#deviceCategory {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+    border: 1px solid #ccc; /* Додайте рамку */
+    border-radius: 4px; /* Закруглені кути */
+    appearance: none; /* Видалення стандартних стрілок */
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/><path fill="none" d="M0 0h24v24H0z"/></svg>'); /* Додайте свою іконку (стрілка) */
+    background-repeat: no-repeat;
+    background-position: right 8px top 50%; /* Розташування іконки */
+    background-size: 16px; /* Розмір іконки */
+    cursor: pointer; /* Змінюємо курсор при наведенні */
+}
+
+#offerForm select#deviceCategory option {
+    padding: 8px;
+    cursor: pointer;
+}
+
+#offerForm select#deviceCategory:focus {
+    outline: none; /* Видалення обведення при фокусі */
+    border-color: #007bff; /* Колір рамки при фокусі */
+}
+
+
 
 
 
