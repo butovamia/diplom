@@ -58,6 +58,14 @@
     <!-- Вміст вкладки 2 -->
     <div id="offerList">
         <h3>Список приладів</h3>
+        <label for="categoryFilter">Фільтр за категоріями:</label>
+        <select id="categoryFilter" onchange="filterOffers()">
+            <option value="all">Усі категорії</option>
+            <option value="Датчики">Датчики</option>
+            <option value="Колонки">Колонки</option>
+            <option value="Зволожувачі">Зволожувачі</option>
+            <option value="Світло">Світло</option>
+        </select>
         <ul id="offers"></ul>
     </div>
 </div>

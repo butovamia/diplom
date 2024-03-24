@@ -172,28 +172,41 @@ function showOffers() {
             const offersList = document.getElementById('offers');
             offersList.innerHTML = '';
 
-            // Виводимо кожен офер
+            // Отримуємо значення обраної категорії для фільтрації
+            const categoryFilter = document.getElementById('categoryFilter').value;
+
+            // Виводимо кожен офер, який відповідає обраній категорії або усім категоріям
             offers.forEach((offer, index) => {
-                const offerItem = document.createElement('div');
-                offerItem.classList.add('offer-item');
+                if (categoryFilter === 'all' || offer.deviceCategory === categoryFilter) {
+                    const offerItem = document.createElement('div');
+                    offerItem.classList.add('offer-item');
 
-                const content = `
-                    <p>Назва приладу: ${offer.deviceName}</p>
-                    <p>Категорія приладу:: ${offer.deviceCategory}</p>
-                    <p>Ціна: ${offer.price}</p>
-                    <p>Опис: ${offer.description}</p>
-                    <img src="${offer.photo}" alt="Фото приладу"> 
-                    <button class="delete-button" onclick="deleteOffer(${index})">Видалити</button>
-                `;
+                    const content = `
+                        <p>Назва приладу: ${offer.deviceName}</p>
+                        <p>Категорія приладу: ${offer.deviceCategory}</p>
+                        <p>Ціна: ${offer.price}</p>
+                        <p>Опис: ${offer.description}</p>
+                        <img src="${offer.photo}" alt="Фото приладу"> 
+                        <button class="delete-button" onclick="deleteOffer(${index})">Видалити</button>
+                    `;
 
-                offerItem.innerHTML = content;
-                offersList.appendChild(offerItem);
+                    offerItem.innerHTML = content;
+                    offersList.appendChild(offerItem);
+                }
             });
         })
         .catch(error => {
             console.error('Помилка при отриманні даних про оферу:', error);
         });
 }
+
+// Функція для фільтрації приладів за категоріями
+function filterOffers() {
+    showOffers();
+}
+
+// Перший виклик для відображення приладів при завантаженні сторінки
+showOffers();
 
 function deleteOffer(index) {
     // Отримуємо дані про поточні офери з файлу offers.json

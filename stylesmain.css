@@ -312,18 +312,32 @@ body {
 /* Стили для кнопки удаления */
 /* Стили для кнопки удаления */
 .delete-button {
-    background-color: #f44336; /* Красный цвет фона */
-    color: #fff; /* Белый цвет текста */
-    padding: 8px 12px; /* Поля вокруг текста */
-    border: none; /* Убираем границу */
-    border-radius: 4px; /* Закругляем углы */
-    cursor: pointer; /* Делаем курсор указателем */
-    font-size: 14px; /* Размер шрифта */
-    display: block; /* Делаем кнопку блочным элементом */
-    margin: 0 auto; /* Центрируем по горизонтали */
+    background-color: #f44336; /* Колір фону кнопки */
+    color: #fff; /* Колір тексту кнопки */
+    padding: 8px 12px; /* Відступи внутрішні */
+    border: none; /* Відсутність границі */
+    border-radius: 4px; /* Закругленість кутів */
+    cursor: pointer; /* Зміна курсору при наведенні */
+    font-size: 14px; /* Розмір шрифту */
+    display: block; /* Блочний елемент */
+    margin: 0 auto; /* Автоматичні зовнішні відступи зліва та справа (центрування) */
 }
 
 .delete-button:hover {
-    background-color: #d32f2f; /* Изменяем цвет фона при наведении */
+    background-color: #d32f2f; /* Колір фону кнопки при наведенні */
 }
 
+.offer-item {
+    border: 1px solid #ddd; /* Границя */
+    padding: 10px; /* Внутрішні відступи */
+    margin-bottom: 15px; /* Зовнішні відступи */
+}
+
+.offer-itemp {
+    margin-bottom: 8px; /* Зовнішні відступи між параграфами */
+}
+
+.offer-item img {
+    max-width: 100%; /* Максимальна ширина фотографії */
+    margin-bottom: 8px; /* Зовнішні відступи між фотографією та кнопкою */
+}
