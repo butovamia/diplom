@@ -156,7 +156,7 @@ body {
     border: 1px solid #ddd;
     padding: 10px;
     margin: 10px;
-    width: 200px;
+    width: 400px;
     float: left;
 }
 
@@ -380,4 +380,35 @@ body {
 
 .zoomable-image.zoomed {
     transform: scale(2);
+}
+
+#devicesContainer {
+    margin: 10px;
+}
+
+.device-item {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    min-width: 350px;
+}
+
+.device-item .device-image {
+    margin-right: 20px;
+}
+
+.device-item img {
+    max-width: 200px;
+    height: auto;
+}
+
+.device-item .device-info {
+    flex-grow: 1;
+}
+
+.device-item p {
+    margin: 5px 0;
 }

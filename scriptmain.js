@@ -21,9 +21,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Відображаємо персонал під час завантаження сторінки
     showRooms();
-    showVacancies() 
-    showPersonnelForMatching()
-    showAcceptedOffers();
+    showDevices()
+    showRoomsWithDevices()
+    showAcceptedOffersInfo();
 });
 
 
@@ -269,159 +269,159 @@ function deleteOffer(index) {
 //#endregion
 
 //#region personal
-    // Змінна для відстеження кількості полів для кімнат
-    let roomCounter = 1;
+// Змінна для відстеження кількості полів для кімнат
+let roomCounter = 1;
 
-    // Функція для додавання нового поля для введення даних про кімнату
-    function addRoomField() {
-        const roomFields = document.getElementById('roomFields');
+// Функція для додавання нового поля для введення даних про кімнату
+function addRoomField() {
+    const roomFields = document.getElementById('roomFields');
 
-        const roomField = document.createElement('div');
-        roomField.innerHTML = `
+    const roomField = document.createElement('div');
+    roomField.innerHTML = `
             <label for="roomName${roomCounter}">Назва кімнати ${roomCounter}:</label>
             <input type="text" id="roomName${roomCounter}" required>
             <label for="roomArea${roomCounter}">Площа кімнати ${roomCounter} (м²):</label>
             <input type="number" id="roomArea${roomCounter}" required min="0">
         `;
 
-        roomFields.appendChild(roomField);
-        roomCounter++;
+    roomFields.appendChild(roomField);
+    roomCounter++;
+}
+
+// Функція для збору даних про кімнати та їх відправки на сервер
+function submitRooms(event) {
+    event.preventDefault();
+
+    const roomsData = [];
+
+    for (let i = 1; i < roomCounter; i++) {
+        const roomName = document.getElementById(`roomName${i}`).value;
+        const roomArea = document.getElementById(`roomArea${i}`).value;
+        const apartmentId = document.getElementById('apartmentId').value; // Додатково зчитуємо id квартири
+        const apartmentImage = document.getElementById('apartmentImage').value; // Додатково зчитуємо посилання на картинку квартири
+
+        roomsData.push({
+            roomName: encodeURI(roomName),
+            roomArea: encodeURI(roomArea),
+            apartmentId: encodeURI(apartmentId), // Додаємо ідентифікатор квартири для кожної кімнати
+            apartmentImage: encodeURI(apartmentImage), // Додаємо посилання на зображення квартири
+        });
     }
 
-    // Функція для збору даних про кімнати та їх відправки на сервер
-    function submitRooms(event) {
-        event.preventDefault();
-    
-        const roomsData = [];
-    
-        for (let i = 1; i < roomCounter; i++) {
-            const roomName = document.getElementById(`roomName${i}`).value;
-            const roomArea = document.getElementById(`roomArea${i}`).value;
-            const apartmentId = document.getElementById('apartmentId').value; // Додатково зчитуємо id квартири
-            const apartmentImage = document.getElementById('apartmentImage').value; // Додатково зчитуємо посилання на картинку квартири
-    
-            roomsData.push({
-                roomName: encodeURI(roomName),
-                roomArea: encodeURI(roomArea),
-                apartmentId: encodeURI(apartmentId), // Додаємо ідентифікатор квартири для кожної кімнати
-                apartmentImage: encodeURI(apartmentImage), // Додаємо посилання на зображення квартири
-            });
-        }
-    
-        // Отримуємо дані про квартири з сервера
-        fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
-            .then(response => response.json())
-            .then(existingData => {
-                const existingApartmentsString = atob(existingData.content);
-                let existingApartments;
-    
-                try {
-                    existingApartments = JSON.parse(existingApartmentsString);
-    
-                    if (!Array.isArray(existingApartments)) {
-                        existingApartments = [existingApartments];
-                    }
-                } catch (error) {
-                    existingApartments = [];
+    // Отримуємо дані про квартири з сервера
+    fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
+        .then(response => response.json())
+        .then(existingData => {
+            const existingApartmentsString = atob(existingData.content);
+            let existingApartments;
+
+            try {
+                existingApartments = JSON.parse(existingApartmentsString);
+
+                if (!Array.isArray(existingApartments)) {
+                    existingApartments = [existingApartments];
                 }
-    
-                // Шукаємо квартиру з відповідним id
-                const apartmentIndex = existingApartments.findIndex(apartment => apartment.id === roomsData[0].apartmentId);
-    
-                if (apartmentIndex !== -1) { // Якщо знайдено квартиру з відповідним id
-                    // Додаємо кімнати до відповідної квартири
-                    if (!existingApartments[apartmentIndex].rooms) {
-                        existingApartments[apartmentIndex].rooms = [];
-                    }
-                    roomsData.forEach(room => {
-                        existingApartments[apartmentIndex].rooms.push(room);
-                    });
-                } else {
-                    // Створюємо нову квартиру та додаємо кімнати до неї
-                    const newApartment = {
-                        id: roomsData[0].apartmentId,
-                        image: roomsData[0].apartmentImage, // Додаємо посилання на зображення квартири
-                        rooms: roomsData,
-                    };
-                    existingApartments.push(newApartment);
+            } catch (error) {
+                existingApartments = [];
+            }
+
+            // Шукаємо квартиру з відповідним id
+            const apartmentIndex = existingApartments.findIndex(apartment => apartment.id === roomsData[0].apartmentId);
+
+            if (apartmentIndex !== -1) { // Якщо знайдено квартиру з відповідним id
+                // Додаємо кімнати до відповідної квартири
+                if (!existingApartments[apartmentIndex].rooms) {
+                    existingApartments[apartmentIndex].rooms = [];
                 }
-    
-                // Оновлюємо вміст файлу з урахуванням нових даних
-                const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(existingApartments)))).replace(/.{76}/g, "$&\n");
-                const githubToken = 'ghp_9XtTEFkHDDfhiY3Iik1O63';
-    
-                fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json', {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${githubToken + 'IGHVFxc41z25Xe'}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message: 'Додавання нових кімнат',
-                        content: updatedContent,
-                        sha: existingData.sha,
-                    }),
+                roomsData.forEach(room => {
+                    existingApartments[apartmentIndex].rooms.push(room);
+                });
+            } else {
+                // Створюємо нову квартиру та додаємо кімнати до неї
+                const newApartment = {
+                    id: roomsData[0].apartmentId,
+                    image: roomsData[0].apartmentImage, // Додаємо посилання на зображення квартири
+                    rooms: roomsData,
+                };
+                existingApartments.push(newApartment);
+            }
+
+            // Оновлюємо вміст файлу з урахуванням нових даних
+            const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(existingApartments)))).replace(/.{76}/g, "$&\n");
+            const githubToken = 'ghp_9XtTEFkHDDfhiY3Iik1O63';
+
+            fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${githubToken + 'IGHVFxc41z25Xe'}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: 'Додавання нових кімнат',
+                    content: updatedContent,
+                    sha: existingData.sha,
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Дані успішно відправлені на GitHub:', data);
+                    // Оновлюємо відображення після додавання кімнат
+                    // Можна додати додатковий функціонал для оновлення відображення, якщо потрібно
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Дані успішно відправлені на GitHub:', data);
-                        // Оновлюємо відображення після додавання кімнат
-                        // Можна додати додатковий функціонал для оновлення відображення, якщо потрібно
-                    })
-                    .catch(error => {
-                        console.error('Помилка при оновленні даних на GitHub:', error);
-                    });
-            })
-            .catch(error => {
-                console.error('Помилка при отриманні попередньої версії файлу:', error);
-            });
-    
-        showNotification('Кімнати успішно збережені!');
-    }
-    
-    
-    
+                .catch(error => {
+                    console.error('Помилка при оновленні даних на GitHub:', error);
+                });
+        })
+        .catch(error => {
+            console.error('Помилка при отриманні попередньої версії файлу:', error);
+        });
 
-    function showRooms() {
-        // Отримуємо дані про квартири із файлу apartments.json
-        fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Помилка при отриманні даних із сервера');
+    showNotification('Кімнати успішно збережені!');
+}
+
+
+
+
+function showRooms() {
+    // Отримуємо дані про квартири із файлу apartments.json
+    fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Помилка при отриманні даних із сервера');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const apartmentsString = atob(data.content);
+            const decodedApartmentsString = decodeURIComponent(apartmentsString);
+
+            let apartments;
+
+            try {
+                apartments = JSON.parse(decodedApartmentsString);
+
+                if (!Array.isArray(apartments)) {
+                    apartments = [apartments];
                 }
-                return response.json();
-            })
-            .then(data => {
-                const apartmentsString = atob(data.content);
-                const decodedApartmentsString = decodeURIComponent(apartmentsString);
-    
-                let apartments;
-    
-                try {
-                    apartments = JSON.parse(decodedApartmentsString);
-    
-                    if (!Array.isArray(apartments)) {
-                        apartments = [apartments];
-                    }
-                } catch (error) {
-                    apartments = [];
-                }
-    
-                // Очищаємо список квартир
-                const apartmentsList = document.getElementById('roomsList');
-                apartmentsList.innerHTML = '';
-    
-                // Виводимо кожну квартиру
-                apartments.forEach((apartment, index) => {
-                    const apartmentItem = document.createElement('div');
-                    apartmentItem.classList.add('apartment-item');
-    
-                    const roomsContent = apartment.rooms.map(room => `
+            } catch (error) {
+                apartments = [];
+            }
+
+            // Очищаємо список квартир
+            const apartmentsList = document.getElementById('roomsList');
+            apartmentsList.innerHTML = '';
+
+            // Виводимо кожну квартиру
+            apartments.forEach((apartment, index) => {
+                const apartmentItem = document.createElement('div');
+                apartmentItem.classList.add('apartment-item');
+
+                const roomsContent = apartment.rooms.map(room => `
                         <p>Назва кімнати: ${room.roomName}</p>
                         <p>Площа кімнати: ${room.roomArea} м²</p>
                     `).join('');
-    
-                    const content = `
+
+                const content = `
                         <div class="apartment-info">
                             <p>Квартира №${apartment.id}</p>
                             ${roomsContent}
@@ -429,92 +429,92 @@ function deleteOffer(index) {
                         </div>
                         <button class="delete-button" onclick="deleteApartment(${index})">Видалити квартиру</button>
                     `;
-    
-                    apartmentItem.innerHTML = content;
-                    apartmentsList.appendChild(apartmentItem);
-                });
-    
-                // Викликаємо функцію для приближення зображень
-                setupImageZoom();
-            })
-            .catch(error => {
-                console.error('Помилка при отриманні даних про квартири:', error);
+
+                apartmentItem.innerHTML = content;
+                apartmentsList.appendChild(apartmentItem);
             });
-    }
-    
-    function setupImageZoom() {
-        const zoomableImages = document.querySelectorAll('.zoomable-image');
-        zoomableImages.forEach(image => {
-            image.addEventListener('click', () => {
-                image.classList.toggle('zoomed');
-            });
+
+            // Викликаємо функцію для приближення зображень
+            setupImageZoom();
+        })
+        .catch(error => {
+            console.error('Помилка при отриманні даних про квартири:', error);
         });
-    }
-    
-    // Викликаємо функцію для показу квартир при завантаженні сторінки
-    showRooms();
-    
-    
-    function deleteApartment(index) {
-        // Отримуємо дані про квартири із файлу apartments.json
-        fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Помилка при отриманні даних із сервера');
+}
+
+function setupImageZoom() {
+    const zoomableImages = document.querySelectorAll('.zoomable-image');
+    zoomableImages.forEach(image => {
+        image.addEventListener('click', () => {
+            image.classList.toggle('zoomed');
+        });
+    });
+}
+
+// Викликаємо функцію для показу квартир при завантаженні сторінки
+showRooms();
+
+
+function deleteApartment(index) {
+    // Отримуємо дані про квартири із файлу apartments.json
+    fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Помилка при отриманні даних із сервера');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const apartmentsString = atob(data.content);
+
+            let apartments;
+
+            try {
+                apartments = JSON.parse(apartmentsString);
+
+                if (!Array.isArray(apartments)) {
+                    apartments = [apartments];
                 }
-                return response.json();
+            } catch (error) {
+                apartments = [];
+            }
+
+            // Видаляємо квартиру за індексом
+            apartments.splice(index, 1);
+
+            // Оновлюємо вміст файлу з урахуванням нових даних
+            const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(apartments)))).replace(/.{76}/g, "$&\n");
+            const githubToken = 'ghp_9XtTEFkHDDfhiY3Iik1O63';
+
+            fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${githubToken + 'IGHVFxc41z25Xe'}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: 'Видалення квартири',
+                    content: updatedContent,
+                    sha: data.sha,
+                }),
             })
-            .then(data => {
-                const apartmentsString = atob(data.content);
-    
-                let apartments;
-    
-                try {
-                    apartments = JSON.parse(apartmentsString);
-    
-                    if (!Array.isArray(apartments)) {
-                        apartments = [apartments];
-                    }
-                } catch (error) {
-                    apartments = [];
-                }
-    
-                // Видаляємо квартиру за індексом
-                apartments.splice(index, 1);
-    
-                // Оновлюємо вміст файлу з урахуванням нових даних
-                const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(apartments)))).replace(/.{76}/g, "$&\n");
-                const githubToken = 'ghp_9XtTEFkHDDfhiY3Iik1O63';
-    
-                fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json', {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${githubToken + 'IGHVFxc41z25Xe'}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message: 'Видалення квартири',
-                        content: updatedContent,
-                        sha: data.sha,
-                    }),
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Квартиру успішно видалено:', data);
+                    // Оновлюємо відображення після видалення
+                    showRooms();
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Квартиру успішно видалено:', data);
-                        // Оновлюємо відображення після видалення
-                        showRooms();
-                    })
-                    .catch(error => {
-                        console.error('Помилка при оновленні даних на GitHub:', error);
-                    });
-            })
-            .catch(error => {
-                console.error('Помилка при отриманні даних про квартири:', error);
-            });
-    }
-    
-    
-    
+                .catch(error => {
+                    console.error('Помилка при оновленні даних на GitHub:', error);
+                });
+        })
+        .catch(error => {
+            console.error('Помилка при отриманні даних про квартири:', error);
+        });
+}
+
+
+
 
 // function registerEmployee(event) {
 //     event.preventDefault();
@@ -538,7 +538,7 @@ function deleteOffer(index) {
 //         technologies: encodeURI(employeeTechnologies),
 //         expectedSalary: encodeURI(expectedSalary),
 //     };
-    
+
 
 //     // Надсилаємо дані на сервер (замініть на свої дані та вкажіть правильний шлях до employees.json)
 //     fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
@@ -708,8 +708,9 @@ function deleteOffer(index) {
 //#endregion
 
 //#region vacancies
-function showVacancies() {
-    // Отримуємо дані про вакансії з файлу offers.json
+
+function showDevices() {
+    // Отримуємо дані про пристрої з файлу devices.json
     fetch('https://api.github.com/repos/butovamia/diplom/contents/offers.json')
         .then(response => {
             if (!response.ok) {
@@ -718,55 +719,51 @@ function showVacancies() {
             return response.json();
         })
         .then(data => {
-            const vacanciesString = atob(data.content);
-            const decodedVacanciesString = decodeURIComponent(vacanciesString);
-            let vacancies;
+            const devicesString = atob(data.content);
+            const decodedDevicesString = decodeURIComponent(devicesString);
+            let devices;
 
             try {
-                vacancies = JSON.parse(decodedVacanciesString);
+                devices = JSON.parse(decodedDevicesString);
 
-                if (!Array.isArray(vacancies)) {
-                    vacancies = [vacancies];
+                if (!Array.isArray(devices)) {
+                    devices = [devices];
                 }
             } catch (error) {
-                vacancies = [];
+                devices = [];
             }
 
-            // Очищаємо список вакансій
-            const vacanciesContainer = document.getElementById('vacanciesContainer');
-            vacanciesContainer.innerHTML = '';
+            // Очищаємо список пристроїв
+            const devicesContainer = document.getElementById('devicesContainer');
+            devicesContainer.innerHTML = '';
 
-            // Виводимо кожну вакансію
-            vacancies.forEach((vacancy, index) => {
-                const vacancyItem = document.createElement('div');
-                vacancyItem.classList.add('vacancy-item');
-                vacancyItem.id = `vacancy_${index}`;
-                vacancyItem.draggable = true;
-                vacancyItem.innerHTML = `
-                    <p>Компанія: ${vacancy.deviceName}</p>
-                    <p>Оффер: ${vacancy.deviceCategory}</p>
-                    <p>Зарплата: ${vacancy.price}</p>
-                    <p>Мова: ${vacancy.description}</p>
-                    <p>Технології: ${vacancy.photo}</p>
+            // Виводимо кожен пристрій
+            // Виводимо кожен пристрій
+            devices.forEach((device, index) => {
+                const deviceItem = document.createElement('div');
+                deviceItem.classList.add('device-item');
+                deviceItem.innerHTML = `
+                    <div class="device-image">
+                        <img src="${device.photo}" alt="${device.deviceName}">
+                    </div>
+                    <div class="device-info">
+                        <p>Назва: ${device.deviceName}</p>
+                        <p>Категорія: ${device.deviceCategory}</p>
+                        <p>Ціна: ${device.price}</p>
+                        <p>Опис: ${device.description}</p>
+                    </div>
                 `;
-                vacanciesContainer.appendChild(vacancyItem);
-
-                // Додаємо обробник події кліка на вакансію
-                vacancyItem.addEventListener('click', () => {
-                    // Забираємо виділення з усіх вакансій
-                    document.querySelectorAll('.vacancy-item').forEach(item => item.classList.remove('selected'));
-                    // Добавляємо/видаляємо клас "selected" поточної вакансії
-                    vacancyItem.classList.toggle('selected');
-                });
+                devicesContainer.appendChild(deviceItem);
             });
+
         })
         .catch(error => {
-            console.error('Помилка при отриманні даних про вакансії:', error);
+            console.error('Помилка при отриманні даних про пристрої:', error);
         });
 }
 
-function showPersonnelForMatching() {
-    // Отримуємо дані про персонал із файлу employees.json
+function showRoomsWithDevices() {
+    // Отримуємо дані про квартири із файлу apartments.json
     fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
         .then(response => {
             if (!response.ok) {
@@ -775,110 +772,145 @@ function showPersonnelForMatching() {
             return response.json();
         })
         .then(data => {
-            const personnelString = atob(data.content);
-            const decodedPersonnelString = decodeURIComponent(personnelString);
-            let personnel;
+            const apartmentsString = atob(data.content);
+            const decodedApartmentsString = decodeURIComponent(apartmentsString);
+            let apartments;
 
             try {
-                personnel = JSON.parse(decodedPersonnelString);
+                apartments = JSON.parse(decodedApartmentsString);
 
-                if (!Array.isArray(personnel)) {
-                    personnel = [personnel];
+                if (!Array.isArray(apartments)) {
+                    apartments = [apartments];
                 }
             } catch (error) {
-                personnel = [];
+                apartments = [];
             }
 
-            // Очищаємо список персоналу
-            const personnelContainer = document.getElementById('employeesContainer');
-            personnelContainer.innerHTML = '';
+            // Очищаємо список квартир та пристроїв
+            const roomsWithDevices = document.getElementById('roomsWithDevices');
+            roomsWithDevices.innerHTML = '';
 
-            // Виводимо кожного співробітника
-            personnel.forEach((person, index) => {
-                const personItem = document.createElement('div');
-                personItem.classList.add('person-item');
-                personItem.id = `employee_${index}`;
-                personItem.draggable = true;
-                personItem.innerHTML = `
-                    <p>Ім'я: ${person.firstName}</p>
-                    <p>Прізвище: ${person.lastName}</p>
-                    <p>По-батькові: ${person.middleName}</p>
-                    <p>Рік народження: ${person.birthYear}</p>
-                    <p>Стаж: ${person.experience}</p>
-                    <p>Освоєні технології: ${person.technologies}</p>
-                    <p>Очікувана зарплатня: ${person.expectedSalary}</p>
+            // Виводимо кожну квартиру
+            apartments.forEach(apartment => {
+                const apartmentItem = document.createElement('div');
+                apartmentItem.classList.add('apartment-item');
+                
+                // Додаємо ідентифікатор квартири та зображення квартири
+                const apartmentInfo = document.createElement('div');
+                apartmentInfo.classList.add('apartment-info');
+                apartmentInfo.innerHTML = `
+                    <img src="${apartment.image}" alt="Квартира №${apartment.id}">
+                    <p>Айди квартири: ${apartment.id}</p>
                 `;
-                personnelContainer.appendChild(personItem);
-
-                // Додаємо обробник події кліка на співробітника
-                personItem.addEventListener('click', () => {
-                    // Перемикаємо клас "selected" для поточного співробітника
-                    personItem.classList.toggle('selected');
+                apartmentItem.appendChild(apartmentInfo);
+            
+                // Виводимо кожну кімнату квартири
+                apartment.rooms.forEach(room => {
+                    const roomItem = document.createElement('div');
+                    roomItem.classList.add('room-item');
+                    roomItem.innerHTML = `
+                        <p>Назва кімнати: ${room.roomName}</p>
+                        <p>Площа кімнати: ${room.roomArea} м²</p>
+                    `;
+                    apartmentItem.appendChild(roomItem);
                 });
+            
+                roomsWithDevices.appendChild(apartmentItem);
             });
+            
         })
         .catch(error => {
-            console.error('Помилка при отриманні даних про персонал:', error);
+            console.error('Помилка при отриманні даних про квартири:', error);
         });
 }
 
-function handleMatchingConfirmation() {
-    // Отримуємо обрану вакансію та обраних співробітників
-    const selectedVacancy = document.querySelector('.vacancy-item.selected');
-    const selectedEmployees = document.querySelectorAll('.person-item.selected');
+document.addEventListener('DOMContentLoaded', function () {
+    showDevices();
+    showRoomsWithDevices();
+    
+    const devicesContainer = document.getElementById('devicesContainer');
+    const roomsWithDevices = document.getElementById('roomsWithDevices');
 
-    // Перевіряємо, що вакансія та співробітники обрані
-    if (selectedVacancy && selectedEmployees.length > 0) {
-        // Створюємо об'єкт для зберігання даних про підтверджені відповідності
+    devicesContainer.addEventListener('click', (event) => {
+        const deviceItem = event.target.closest('.device-item');
+        if (deviceItem) {
+            deviceItem.classList.toggle('selected');
+        }
+    });
+
+    roomsWithDevices.addEventListener('click', (event) => {
+        const roomItem = event.target.closest('.room-item');
+        if (roomItem) {
+            roomItem.classList.toggle('selected');
+        }
+    });
+    
+    const confirmButton = document.getElementById('confirmButton5');
+    if (confirmButton) {
+        confirmButton.addEventListener('click', handleMatchingConfirmation);
+    }
+});
+
+function handleMatchingConfirmation() {
+    const selectedDevices = document.querySelectorAll('.device-item.selected');
+    const selectedRooms = document.querySelectorAll('.room-item.selected');
+
+    if (selectedDevices.length > 0 && selectedRooms.length > 0) {
         const confirmedMatches = {
-            vacancy: {
-                deviceName: selectedVacancy.querySelector('p:nth-child(1)').textContent,
-                deviceCategory: selectedVacancy.querySelector('p:nth-child(2)').textContent,
-                price: selectedVacancy.querySelector('p:nth-child(3)').textContent,
-                description: selectedVacancy.querySelector('p:nth-child(4)').textContent,
-                photo: selectedVacancy.querySelector('p:nth-child(5)').textContent,
-            },
-            employees: [],
+            apartments: [],
         };
 
-        // Додаємо дані про кожного обраного співробітника
-        selectedEmployees.forEach(employee => {
-            confirmedMatches.employees.push({
-                firstName: employee.querySelector('p:nth-child(1)').textContent,
-                lastName: employee.querySelector('p:nth-child(2)').textContent,
-                middleName: employee.querySelector('p:nth-child(3)').textContent,
-                birthYear: employee.querySelector('p:nth-child(4)').textContent,
-                experience: employee.querySelector('p:nth-child(5)').textContent,
-                technologies: employee.querySelector('p:nth-child(6)').textContent,
-                expectedSalary: employee.querySelector('p:nth-child(7)').textContent,
+        selectedRooms.forEach(room => {
+            const apartmentItem = room.closest('.apartment-item');
+            const apartmentInfo = apartmentItem.querySelector('.apartment-info').innerText;
+            const roomInfo = room.innerText;
+            const devicesInfo = [];
+
+            selectedDevices.forEach(device => {
+                const deviceName = device.querySelector('.device-info p:nth-of-type(1)').textContent.trim();
+                const deviceCategory = device.querySelector('.device-info p:nth-of-type(2)').textContent.trim();
+                const devicePrice = device.querySelector('.device-info p:nth-of-type(3)').textContent.trim();
+                const deviceDescription = device.querySelector('.device-info p:nth-of-type(4)').textContent.trim();
+                const deviceImage = device.querySelector('.device-image img').src.trim();
+            
+                const selectedDevice = {
+                    Назва: deviceName,
+                    Категорія: deviceCategory,
+                    Ціна: devicePrice,
+                    Опис: deviceDescription,
+                    Картинка: deviceImage
+                };
+            
+                if (deviceName !== 'Оберіть пристрій') {
+                    devicesInfo.push(selectedDevice);
+                }
+            });
+            
+
+            confirmedMatches.apartments.push({
+                apartmentInfo: apartmentInfo,
+                roomInfo: roomInfo,
+                devicesInfo: devicesInfo,
             });
         });
 
-        // Зберігаємо підтверджені відповідності
         saveDataToAcceptedOffers(confirmedMatches);
 
-        // Після завершення операцій очищаємо обраних співробітників та вакансію
-        selectedEmployees.forEach(employee => {
-            employee.classList.remove('selected');
+        selectedDevices.forEach(device => {
+            device.classList.remove('selected');
         });
 
-        selectedVacancy.classList.remove('selected');
+        selectedRooms.forEach(room => {
+            room.classList.remove('selected');
+        });
 
-        // Показуємо повідомлення про підтверджені відповідності
-        showNotification('Підтверджено відповідність вакансії та співробітників');
+        showNotification('Підтверджено відповідність пристроїв та кімнат');
 
-        // Оновлюємо відображення вакансій та персоналу
-        showVacancies();
-        showPersonnelForMatching();
     } else {
-        // Показуємо повідомлення, якщо вакансія або співробітники не вибрані
-        showNotification('Виберіть вакансію та хоча б одного співробітника для підтвердження');
+        showNotification('Виберіть пристрій та кімнату для підтвердження');
     }
 }
 
-
-
-// Функція збереження даних у файл acceptedoffers.json
 function saveDataToAcceptedOffers(data) {
     fetch('https://api.github.com/repos/butovamia/diplom/contents/acceptedoffers.json')
         .then(response => response.json())
@@ -896,10 +928,8 @@ function saveDataToAcceptedOffers(data) {
                 existingMatches = [];
             }
 
-            // Додаємо нові підтверджені відповідності
             existingMatches.push(data);
 
-            // Оновлюємо вміст файлу з урахуванням нових даних
             const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(existingMatches)))).replace(/.{76}/g, "$&\n");
             const githubToken = 'ghp_9XtTEFkHDDfhiY3Iik1O63';
 
@@ -928,56 +958,276 @@ function saveDataToAcceptedOffers(data) {
         });
 }
 
-// Код для додавання слухача події до кнопки
-document.addEventListener('DOMContentLoaded', function () {
-    const confirmButton = document.getElementById('confirmButton5');
-    if (confirmButton) {
-        confirmButton.addEventListener('click', handleMatchingConfirmation);
-    }
-});
 
-// Додавання/видалення класу "selected" при натисканні на вакансію
-document.addEventListener('click', function(event) {
-    const vacancyItem = event.target.closest('.vacancy-item');
-    if (vacancyItem) {
-        // Забираємо виділення з усіх вакансій
-        document.querySelectorAll('.vacancy-item').forEach(item => item.classList.remove('selected'));
-        // Додаємо/видаляємо клас "selected" поточної вакансії
-        vacancyItem.classList.toggle('selected');
-    }
-});
+// function showVacancies() {
+//     // Отримуємо дані про вакансії з файлу offers.json
+//     fetch('https://api.github.com/repos/butovamia/diplom/contents/offers.json')
+//         .then(response => {
+//             if (!response.ok) {
+//                 throw new Error('Помилка при отриманні даних із сервера');
+//             }
+//             return response.json();
+//         })
+//         .then(data => {
+//             const vacanciesString = atob(data.content);
+//             const decodedVacanciesString = decodeURIComponent(vacanciesString);
+//             let vacancies;
 
-// Додавання/видалення класу "selected" при натисканні на співробітника
-document.addEventListener('click', function(event) {
-    const personnelItems = document.querySelectorAll('.person-item');
+//             try {
+//                 vacancies = JSON.parse(decodedVacanciesString);
 
-    // Перебираємо кожен елемент персоналу
-    personnelItems.forEach(personItem => {
-        // Додаємо обробник події кліка
-        personItem.addEventListener('click', () => {
-            // Перемикаємо клас "selected" для поточного елемента
-            personItem.classList.toggle('selected');
-        });
-    });
-});
+//                 if (!Array.isArray(vacancies)) {
+//                     vacancies = [vacancies];
+//                 }
+//             } catch (error) {
+//                 vacancies = [];
+//             }
+
+//             // Очищаємо список вакансій
+//             const vacanciesContainer = document.getElementById('vacanciesContainer');
+//             vacanciesContainer.innerHTML = '';
+
+//             // Виводимо кожну вакансію
+//             vacancies.forEach((vacancy, index) => {
+//                 const vacancyItem = document.createElement('div');
+//                 vacancyItem.classList.add('vacancy-item');
+//                 vacancyItem.id = `vacancy_${index}`;
+//                 vacancyItem.draggable = true;
+//                 vacancyItem.innerHTML = `
+//                     <p>Компанія: ${vacancy.deviceName}</p>
+//                     <p>Оффер: ${vacancy.deviceCategory}</p>
+//                     <p>Зарплата: ${vacancy.price}</p>
+//                     <p>Мова: ${vacancy.description}</p>
+//                     <p>Технології: ${vacancy.photo}</p>
+//                 `;
+//                 vacanciesContainer.appendChild(vacancyItem);
+
+//                 // Додаємо обробник події кліка на вакансію
+//                 vacancyItem.addEventListener('click', () => {
+//                     // Забираємо виділення з усіх вакансій
+//                     document.querySelectorAll('.vacancy-item').forEach(item => item.classList.remove('selected'));
+//                     // Добавляємо/видаляємо клас "selected" поточної вакансії
+//                     vacancyItem.classList.toggle('selected');
+//                 });
+//             });
+//         })
+//         .catch(error => {
+//             console.error('Помилка при отриманні даних про вакансії:', error);
+//         });
+// }
+
+// function showPersonnelForMatching() {
+//     // Отримуємо дані про персонал із файлу employees.json
+//     fetch('https://api.github.com/repos/butovamia/diplom/contents/employees.json')
+//         .then(response => {
+//             if (!response.ok) {
+//                 throw new Error('Помилка при отриманні даних із сервера');
+//             }
+//             return response.json();
+//         })
+//         .then(data => {
+//             const personnelString = atob(data.content);
+//             const decodedPersonnelString = decodeURIComponent(personnelString);
+//             let personnel;
+
+//             try {
+//                 personnel = JSON.parse(decodedPersonnelString);
+
+//                 if (!Array.isArray(personnel)) {
+//                     personnel = [personnel];
+//                 }
+//             } catch (error) {
+//                 personnel = [];
+//             }
+
+//             // Очищаємо список персоналу
+//             const personnelContainer = document.getElementById('employeesContainer');
+//             personnelContainer.innerHTML = '';
+
+//             // Виводимо кожного співробітника
+//             personnel.forEach((person, index) => {
+//                 const personItem = document.createElement('div');
+//                 personItem.classList.add('person-item');
+//                 personItem.id = `employee_${index}`;
+//                 personItem.draggable = true;
+//                 personItem.innerHTML = `
+//                     <p>Ім'я: ${person.firstName}</p>
+//                     <p>Прізвище: ${person.lastName}</p>
+//                     <p>По-батькові: ${person.middleName}</p>
+//                     <p>Рік народження: ${person.birthYear}</p>
+//                     <p>Стаж: ${person.experience}</p>
+//                     <p>Освоєні технології: ${person.technologies}</p>
+//                     <p>Очікувана зарплатня: ${person.expectedSalary}</p>
+//                 `;
+//                 personnelContainer.appendChild(personItem);
+
+//                 // Додаємо обробник події кліка на співробітника
+//                 personItem.addEventListener('click', () => {
+//                     // Перемикаємо клас "selected" для поточного співробітника
+//                     personItem.classList.toggle('selected');
+//                 });
+//             });
+//         })
+//         .catch(error => {
+//             console.error('Помилка при отриманні даних про персонал:', error);
+//         });
+// }
+
+// function handleMatchingConfirmation() {
+//     // Отримуємо обрану вакансію та обраних співробітників
+//     const selectedVacancy = document.querySelector('.vacancy-item.selected');
+//     const selectedEmployees = document.querySelectorAll('.person-item.selected');
+
+//     // Перевіряємо, що вакансія та співробітники обрані
+//     if (selectedVacancy && selectedEmployees.length > 0) {
+//         // Створюємо об'єкт для зберігання даних про підтверджені відповідності
+//         const confirmedMatches = {
+//             vacancy: {
+//                 deviceName: selectedVacancy.querySelector('p:nth-child(1)').textContent,
+//                 deviceCategory: selectedVacancy.querySelector('p:nth-child(2)').textContent,
+//                 price: selectedVacancy.querySelector('p:nth-child(3)').textContent,
+//                 description: selectedVacancy.querySelector('p:nth-child(4)').textContent,
+//                 photo: selectedVacancy.querySelector('p:nth-child(5)').textContent,
+//             },
+//             employees: [],
+//         };
+
+//         // Додаємо дані про кожного обраного співробітника
+//         selectedEmployees.forEach(employee => {
+//             confirmedMatches.employees.push({
+//                 firstName: employee.querySelector('p:nth-child(1)').textContent,
+//                 lastName: employee.querySelector('p:nth-child(2)').textContent,
+//                 middleName: employee.querySelector('p:nth-child(3)').textContent,
+//                 birthYear: employee.querySelector('p:nth-child(4)').textContent,
+//                 experience: employee.querySelector('p:nth-child(5)').textContent,
+//                 technologies: employee.querySelector('p:nth-child(6)').textContent,
+//                 expectedSalary: employee.querySelector('p:nth-child(7)').textContent,
+//             });
+//         });
+
+//         // Зберігаємо підтверджені відповідності
+//         saveDataToAcceptedOffers(confirmedMatches);
+
+//         // Після завершення операцій очищаємо обраних співробітників та вакансію
+//         selectedEmployees.forEach(employee => {
+//             employee.classList.remove('selected');
+//         });
+
+//         selectedVacancy.classList.remove('selected');
+
+//         // Показуємо повідомлення про підтверджені відповідності
+//         showNotification('Підтверджено відповідність вакансії та співробітників');
+
+//         // Оновлюємо відображення вакансій та персоналу
+//         showVacancies();
+//         showPersonnelForMatching();
+//     } else {
+//         // Показуємо повідомлення, якщо вакансія або співробітники не вибрані
+//         showNotification('Виберіть вакансію та хоча б одного співробітника для підтвердження');
+//     }
+// }
+
+
+
+// // Функція збереження даних у файл acceptedoffers.json
+// function saveDataToAcceptedOffers(data) {
+//     fetch('https://api.github.com/repos/butovamia/diplom/contents/acceptedoffers.json')
+//         .then(response => response.json())
+//         .then(existingData => {
+//             const existingMatchesString = new TextDecoder('utf-8').decode(Uint8Array.from(atob(existingData.content), c => c.charCodeAt(0)));
+//             let existingMatches;
+
+//             try {
+//                 existingMatches = JSON.parse(existingMatchesString);
+
+//                 if (!Array.isArray(existingMatches)) {
+//                     existingMatches = [existingMatches];
+//                 }
+//             } catch (error) {
+//                 existingMatches = [];
+//             }
+
+//             // Додаємо нові підтверджені відповідності
+//             existingMatches.push(data);
+
+//             // Оновлюємо вміст файлу з урахуванням нових даних
+//             const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(existingMatches)))).replace(/.{76}/g, "$&\n");
+//             const githubToken = 'ghp_9XtTEFkHDDfhiY3Iik1O63';
+
+//             fetch('https://api.github.com/repos/butovamia/diplom/contents/acceptedoffers.json', {
+//                 method: 'PUT',
+//                 headers: {
+//                     'Authorization': `Bearer ${githubToken + 'IGHVFxc41z25Xe'}`,
+//                     'Content-Type': 'application/json',
+//                 },
+//                 body: JSON.stringify({
+//                     message: 'Додавання нових підтверджених відповідностей',
+//                     content: updatedContent,
+//                     sha: existingData.sha,
+//                 }),
+//             })
+//                 .then(response => response.json())
+//                 .then(data => {
+//                     console.log('Дані успішно відправлені на GitHub:', data);
+//                 })
+//                 .catch(error => {
+//                     console.error('Помилка при оновленні даних на GitHub:', error);
+//                 });
+//         })
+//         .catch(error => {
+//             console.error('Помилка при отриманні попередньої версії файлу:', error);
+//         });
+// }
+
+// // Код для додавання слухача події до кнопки
+// document.addEventListener('DOMContentLoaded', function () {
+//     const confirmButton = document.getElementById('confirmButton5');
+//     if (confirmButton) {
+//         confirmButton.addEventListener('click', handleMatchingConfirmation);
+//     }
+// });
+
+// // Додавання/видалення класу "selected" при натисканні на вакансію
+// document.addEventListener('click', function(event) {
+//     const vacancyItem = event.target.closest('.vacancy-item');
+//     if (vacancyItem) {
+//         // Забираємо виділення з усіх вакансій
+//         document.querySelectorAll('.vacancy-item').forEach(item => item.classList.remove('selected'));
+//         // Додаємо/видаляємо клас "selected" поточної вакансії
+//         vacancyItem.classList.toggle('selected');
+//     }
+// });
+
+// // Додавання/видалення класу "selected" при натисканні на співробітника
+// document.addEventListener('click', function(event) {
+//     const personnelItems = document.querySelectorAll('.person-item');
+
+//     // Перебираємо кожен елемент персоналу
+//     personnelItems.forEach(personItem => {
+//         // Додаємо обробник події кліка
+//         personItem.addEventListener('click', () => {
+//             // Перемикаємо клас "selected" для поточного елемента
+//             personItem.classList.toggle('selected');
+//         });
+//     });
+// });
 
 
 //#endregion
 
 //#region endoffers
 
-function showAcceptedOffers() {
-    // Отримуємо дані про підтверджені відповідності з файлу acceptedoffers.json
+function showAcceptedOffersInfo() {
     fetch('https://api.github.com/repos/butovamia/diplom/contents/acceptedoffers.json')
         .then(response => {
             if (!response.ok) {
-                throw new Error('Ошибка при получении данных с сервера');
+                throw new Error('Помилка при отриманні даних із сервера');
             }
             return response.json();
         })
         .then(data => {
-            const acceptedOffersString = data.content;
-            const decodedAcceptedOffersString = new TextDecoder('utf-8').decode(Uint8Array.from(atob(acceptedOffersString), c => c.charCodeAt(0)));
+            const acceptedOffersString = new TextDecoder('utf-8').decode(Uint8Array.from(atob(data.content), c => c.charCodeAt(0)));
+            const decodedAcceptedOffersString = decodeURIComponent(acceptedOffersString);
             let acceptedOffers;
 
             try {
@@ -990,65 +1240,53 @@ function showAcceptedOffers() {
                 acceptedOffers = [];
             }
 
-            // Очищаємо список підтверджених відповідностей
-            const acceptedOffersContainer = document.getElementById('acceptedOffersContainer');
-            acceptedOffersContainer.innerHTML = '';
+            // Очищаємо контейнер з інформацією про підтверджені відповідності
+            const acceptedOffersInfoContainer = document.getElementById('acceptedOffersInfo');
+            acceptedOffersInfoContainer.innerHTML = '';
 
-            // Виводимо кожну підтверджену відповідність
-            acceptedOffers.forEach((match, index) => {
-                const matchItem = document.createElement('div');
-                matchItem.classList.add('match-item');
-                matchItem.id = `match_${index}`;
-            
-                // Створюємо див для вакансії
-                const vacancyInfo = document.createElement('div');
-                vacancyInfo.classList.add('vacancy-info');
-                vacancyInfo.innerHTML = `
-                    <p>Вакансія:</p>
-                    <p>${match.vacancy.deviceName}</p>
-                    <p>${match.vacancy.deviceCategory}</p>
-                    <p>${match.vacancy.price}</p>
-                    <p>${match.vacancy.description}</p>
-                    <p>${match.vacancy.photo}</p>
-                `;
-            
-                // Додаємо див вакансії в основний елемент
-                matchItem.appendChild(vacancyInfo);
-            
-                // Створюємо див для співробітників
-                const employeesInfo = document.createElement('div');
-                employeesInfo.classList.add('employees-info');
-                employeesInfo.innerHTML = '<p>Співробітники:</p>';
-            
-                // Виводимо кожного співробітника для цієї підтвердженої відповідності
-                match.employees.forEach(employee => {
-                    const employeeInfo = document.createElement('div');
-                    employeeInfo.classList.add('employee-info');
-                    employeeInfo.innerHTML = `
-                        <p>${employee.firstName}</p>
-                        <p>${employee.lastName}</p>
-                        <p>${employee.birthYear}</p>
-                        <p>${employee.experience}</p>
-                        <p>${employee.expectedSalary}</p>
-                    `;
-                    employeesInfo.appendChild(employeeInfo);
+            // Об'єднуємо дані для кожної квартири та виводимо їх
+            const groupedApartments = {};
+
+            acceptedOffers.forEach((offer, index) => {
+                offer.apartments.forEach(apartment => {
+                    if (!groupedApartments[apartment.apartmentInfo]) {
+                        groupedApartments[apartment.apartmentInfo] = {
+                            apartmentInfo: apartment.apartmentInfo,
+                            rooms: {}
+                        };
+                    }
+
+                    if (!groupedApartments[apartment.apartmentInfo].rooms[apartment.roomInfo]) {
+                        groupedApartments[apartment.apartmentInfo].rooms[apartment.roomInfo] = [];
+                    }
+
+                    groupedApartments[apartment.apartmentInfo].rooms[apartment.roomInfo].push(...apartment.devicesInfo);
                 });
-            
-                // Додаємо див співробітників в основний елемент
-                matchItem.appendChild(employeesInfo);
-            
-                // Додаємо кнопку "Видалити"
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Видалити';
-                deleteButton.classList.add('delete-button');
-                deleteButton.addEventListener('click', () => {
-                    // Викликаємо функцію видалення за індексом або іншим ідентифікатором
-                    deleteMatch(index); // Замініть на ваш метод видалення
+            });
+
+            // Виводимо інформацію для кожної згрупованої квартири
+            Object.values(groupedApartments).forEach(apartment => {
+                const offerItem = document.createElement('div');
+                offerItem.classList.add('offer-item');
+                let offerHtml = `<p>${apartment.apartmentInfo}</p>`;
+
+                Object.entries(apartment.rooms).forEach(([roomInfo, devicesInfo]) => {
+                    offerHtml += `<p>${roomInfo}</p>`;
+                    
+                    devicesInfo.forEach(device => {
+                        offerHtml += `<div class="device-item">`;
+                        offerHtml += `<div class="device-image"><img src="${device.Картинка}" alt="${device.Назва}"></div>`;
+                        offerHtml += `<div class="device-info">`;
+                        offerHtml += `<p>${device.Назва}</p>`;
+                        offerHtml += `<p>${device.Категорія}</p>`;
+                        offerHtml += `<p>${device.Ціна}</p>`;
+                        offerHtml += `<p>${device.Опис}</p>`;
+                        offerHtml += `</div></div>`;
+                    });
                 });
-                matchItem.appendChild(deleteButton);
-            
-                // Додаємо основний елемент у контейнер
-                acceptedOffersContainer.appendChild(matchItem);
+
+                offerItem.innerHTML = offerHtml;
+                acceptedOffersInfoContainer.appendChild(offerItem);
             });
         })
         .catch(error => {
@@ -1056,65 +1294,166 @@ function showAcceptedOffers() {
         });
 }
 
-function deleteMatch(index) {
-// Отримуємо дані про підтверджені відповідності з файлу acceptedoffers.json
-    fetch('https://api.github.com/repos/butovamia/diplom/contents/acceptedoffers.json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Ошибка при получении данных с сервера');
-            }
-            return response.json();
-        })
-        .then(data => {
-            const acceptedOffersString = data.content;
-            const decodedAcceptedOffersString = new TextDecoder('utf-8').decode(Uint8Array.from(atob(acceptedOffersString), c => c.charCodeAt(0)));
-            let acceptedOffers;
 
-            try {
-                acceptedOffers = JSON.parse(decodedAcceptedOffersString);
 
-                if (!Array.isArray(acceptedOffers)) {
-                    acceptedOffers = [acceptedOffers];
-                }
-            } catch (error) {
-                acceptedOffers = [];
-            }
 
-            // Видаляємо підтверджену відповідність за індексом
-            if (index >= 0 && index < acceptedOffers.length) {
-                acceptedOffers.splice(index, 1);
 
-                // Обновляем файл acceptedoffers.json с учетом удаления
-                const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(acceptedOffers)))).replace(/.{76}/g, "$&\n");
-                const githubToken = 'ghp_9XtTEFkHDDfhiY3Iik1O63';
 
-                fetch('https://api.github.com/repos/butovamia/diplom/contents/acceptedoffers.json', {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${githubToken + 'IGHVFxc41z25Xe'}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message: 'Видалення підтвердженої відповідності',
-                        content: updatedContent,
-                        sha: data.sha,
-                    }),
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Підтверджену відповідність успішно видалено:', data);
 
-                        // Обновляем отображение
-                        showAcceptedOffers();
-                    })
-                    .catch(error => {
-                        console.error('Помилка при оновленні даних на GitHub:', error);
-                    });
-            }
-        })
-        .catch(error => {
-            console.error('Помилка при отриманні даних про підтверджені відповідності:', error);
-        });
-}
+// Викликаємо функцію для відображення інформації про підтверджені відповідності при завантаженні сторінки
+showAcceptedOffersInfo();
+
+
+
+// function showAcceptedOffers() {
+//     // Отримуємо дані про підтверджені відповідності з файлу acceptedoffers.json
+//     fetch('https://api.github.com/repos/butovamia/diplom/contents/acceptedoffers.json')
+//         .then(response => {
+//             if (!response.ok) {
+//                 throw new Error('Ошибка при получении данных с сервера');
+//             }
+//             return response.json();
+//         })
+//         .then(data => {
+//             const acceptedOffersString = data.content;
+//             const decodedAcceptedOffersString = new TextDecoder('utf-8').decode(Uint8Array.from(atob(acceptedOffersString), c => c.charCodeAt(0)));
+//             let acceptedOffers;
+
+//             try {
+//                 acceptedOffers = JSON.parse(decodedAcceptedOffersString);
+
+//                 if (!Array.isArray(acceptedOffers)) {
+//                     acceptedOffers = [acceptedOffers];
+//                 }
+//             } catch (error) {
+//                 acceptedOffers = [];
+//             }
+
+//             // Очищаємо список підтверджених відповідностей
+//             const acceptedOffersContainer = document.getElementById('acceptedOffersContainer');
+//             acceptedOffersContainer.innerHTML = '';
+
+//             // Виводимо кожну підтверджену відповідність
+//             acceptedOffers.forEach((match, index) => {
+//                 const matchItem = document.createElement('div');
+//                 matchItem.classList.add('match-item');
+//                 matchItem.id = `match_${index}`;
+
+//                 // Створюємо див для вакансії
+//                 const vacancyInfo = document.createElement('div');
+//                 vacancyInfo.classList.add('vacancy-info');
+//                 vacancyInfo.innerHTML = `
+//                     <p>Вакансія:</p>
+//                     <p>${match.vacancy.deviceName}</p>
+//                     <p>${match.vacancy.deviceCategory}</p>
+//                     <p>${match.vacancy.price}</p>
+//                     <p>${match.vacancy.description}</p>
+//                     <p>${match.vacancy.photo}</p>
+//                 `;
+
+//                 // Додаємо див вакансії в основний елемент
+//                 matchItem.appendChild(vacancyInfo);
+
+//                 // Створюємо див для співробітників
+//                 const employeesInfo = document.createElement('div');
+//                 employeesInfo.classList.add('employees-info');
+//                 employeesInfo.innerHTML = '<p>Співробітники:</p>';
+
+//                 // Виводимо кожного співробітника для цієї підтвердженої відповідності
+//                 match.employees.forEach(employee => {
+//                     const employeeInfo = document.createElement('div');
+//                     employeeInfo.classList.add('employee-info');
+//                     employeeInfo.innerHTML = `
+//                         <p>${employee.firstName}</p>
+//                         <p>${employee.lastName}</p>
+//                         <p>${employee.birthYear}</p>
+//                         <p>${employee.experience}</p>
+//                         <p>${employee.expectedSalary}</p>
+//                     `;
+//                     employeesInfo.appendChild(employeeInfo);
+//                 });
+
+//                 // Додаємо див співробітників в основний елемент
+//                 matchItem.appendChild(employeesInfo);
+
+//                 // Додаємо кнопку "Видалити"
+//                 const deleteButton = document.createElement('button');
+//                 deleteButton.textContent = 'Видалити';
+//                 deleteButton.classList.add('delete-button');
+//                 deleteButton.addEventListener('click', () => {
+//                     // Викликаємо функцію видалення за індексом або іншим ідентифікатором
+//                     deleteMatch(index); // Замініть на ваш метод видалення
+//                 });
+//                 matchItem.appendChild(deleteButton);
+
+//                 // Додаємо основний елемент у контейнер
+//                 acceptedOffersContainer.appendChild(matchItem);
+//             });
+//         })
+//         .catch(error => {
+//             console.error('Помилка при отриманні даних про підтверджені відповідності:', error);
+//         });
+// }
+
+// function deleteMatch(index) {
+//     // Отримуємо дані про підтверджені відповідності з файлу acceptedoffers.json
+//     fetch('https://api.github.com/repos/butovamia/diplom/contents/acceptedoffers.json')
+//         .then(response => {
+//             if (!response.ok) {
+//                 throw new Error('Ошибка при получении данных с сервера');
+//             }
+//             return response.json();
+//         })
+//         .then(data => {
+//             const acceptedOffersString = data.content;
+//             const decodedAcceptedOffersString = new TextDecoder('utf-8').decode(Uint8Array.from(atob(acceptedOffersString), c => c.charCodeAt(0)));
+//             let acceptedOffers;
+
+//             try {
+//                 acceptedOffers = JSON.parse(decodedAcceptedOffersString);
+
+//                 if (!Array.isArray(acceptedOffers)) {
+//                     acceptedOffers = [acceptedOffers];
+//                 }
+//             } catch (error) {
+//                 acceptedOffers = [];
+//             }
+
+//             // Видаляємо підтверджену відповідність за індексом
+//             if (index >= 0 && index < acceptedOffers.length) {
+//                 acceptedOffers.splice(index, 1);
+
+//                 // Обновляем файл acceptedoffers.json с учетом удаления
+//                 const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(acceptedOffers)))).replace(/.{76}/g, "$&\n");
+//                 const githubToken = 'ghp_9XtTEFkHDDfhiY3Iik1O63';
+
+//                 fetch('https://api.github.com/repos/butovamia/diplom/contents/acceptedoffers.json', {
+//                     method: 'PUT',
+//                     headers: {
+//                         'Authorization': `Bearer ${githubToken + 'IGHVFxc41z25Xe'}`,
+//                         'Content-Type': 'application/json',
+//                     },
+//                     body: JSON.stringify({
+//                         message: 'Видалення підтвердженої відповідності',
+//                         content: updatedContent,
+//                         sha: data.sha,
+//                     }),
+//                 })
+//                     .then(response => response.json())
+//                     .then(data => {
+//                         console.log('Підтверджену відповідність успішно видалено:', data);
+
+//                         // Обновляем отображение
+//                         showAcceptedOffers();
+//                     })
+//                     .catch(error => {
+//                         console.error('Помилка при оновленні даних на GitHub:', error);
+//                     });
+//             }
+//         })
+//         .catch(error => {
+//             console.error('Помилка при отриманні даних про підтверджені відповідності:', error);
+//         });
+// }
 
 //#endregion
