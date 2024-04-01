@@ -1,5 +1,4 @@
 /* stylesmain.css */
-
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -39,74 +38,12 @@ body {
     display: none;
 }
 
-#Tab1 {
-    padding: 20px;
-}
-
-#offerForm {
-    max-width: 400px;
-    margin: 0 auto;
-}
-
-#offerForm label {
-    display: block;
-    margin-bottom: 8px;
-}
-
-#offerForm input {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 12px;
-    box-sizing: border-box;
-}
-
-#offerForm button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    cursor: pointer;
-}
-
-.offer-item {
-    border: 1px solid #ddd;
-    padding: 10px;
-    margin: 10px;
-    width: 200px;
-    float: left;
-}
-
-
-#offerForm select#deviceCategory {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 12px;
-    box-sizing: border-box;
-    border: 1px solid #ccc; /* Додайте рамку */
-    border-radius: 4px; /* Закруглені кути */
-    appearance: none; /* Видалення стандартних стрілок */
-    background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/><path fill="none" d="M0 0h24v24H0z"/></svg>'); /* Додайте свою іконку (стрілка) */
-    background-repeat: no-repeat;
-    background-position: right 8px top 50%; /* Розташування іконки */
-    background-size: 16px; /* Розмір іконки */
-    cursor: pointer; /* Змінюємо курсор при наведенні */
-}
-
-#offerForm select#deviceCategory option {
-    padding: 8px;
-    cursor: pointer;
-}
-
-#offerForm select#deviceCategory:focus {
-    outline: none; /* Видалення обведення при фокусі */
-    border-color: #007bff; /* Колір рамки при фокусі */
-}
 
 
 
 
 
-/* Ваш CSS-код в stylesmain.css */
+
 .notification {
     position: fixed;
     bottom: 10px;
@@ -115,300 +52,445 @@ body {
     color: white;
     padding: 15px;
     border-radius: 5px;
-  }
-  
-  .hide {
+}
+
+.hide {
     display: none;
-  }
-  
+}
 
-  /* Добавьте следующие стили в ваш файл CSS */
-  #Tab3 {
+
+
+
+#Tab1 {
     padding: 20px;
+
+    /* Загальні стилі */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .tabcontent {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    #offerForm {
+        width: 100%;
+        max-width: 600px;
+    }
+
+    h3 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    label {
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    select {
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    button[type="submit"] {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #45a049;
+    }
+
 }
 
-#employeeForm {
-    max-width: 400px;
-    margin: 0 auto;
+#Tab2 {
+    #offerList {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #categoryFilter {
+        margin-bottom: 10px;
+    }
+
+    ul#offers {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        padding: 0;
+        list-style: none;
+    }
+
+    .offer-item {
+        width: 30%; /* ширина елемента */
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+
+    .offer-item p {
+        margin: 5px 0;
+    }
+
+    .zoomable-image {
+        width: 100%;
+        height: auto;
+        margin-bottom: 10px;
+    }
+
+    .delete-button {
+        background-color: red;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+    .delete-button:hover {
+        background-color: darkred;
+    }
 }
 
-#employeeForm label {
-    display: block;
-    margin-bottom: 8px;
-}
+#Tab3 {
+    padding: 20px;
 
-#employeeForm input {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 12px;
-    box-sizing: border-box;
-}
+    /* Загальні стилі */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
 
-#employeeForm button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    cursor: pointer;
-}
+    .tabcontent {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
 
-.offer-item {
-    border: 1px solid #ddd;
-    padding: 10px;
-    margin: 10px;
-    width: 400px;
-    float: left;
+    #roomForm {
+        width: 100%;
+        max-width: 600px;
+    }
+
+    h3 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    label {
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    #roomFields {
+        margin-bottom: 10px;
+    }
+
+    #roomFields>div {
+        margin-bottom: 10px;
+    }
+
+    button[type="button"],
+    button[type="submit"] {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    button[type="button"]:hover,
+    button[type="submit"]:hover {
+        background-color: #45a049;
+    }
+
 }
 
 #Tab4 {
     padding: 20px;
-    flex-wrap: wrap;
-}
 
-#personnelList {
-    list-style-type: none;
-    padding: 0;
-    display: flex;
-}
+    .rooms-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
 
-.person-item {
-    border: 1px solid #ddd;
-    padding: 10px;
-    margin: 10px;
-}
+    .apartment-item {
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        padding: 20px;
+        width: 300px;
+    }
 
-.personel-item {
-    border: 1px solid #ddd;
-    padding: 10px;
-    margin: 10px;
-}
+    .apartment-info {
+        margin-bottom: 20px;
+    }
 
+    .apartment-info p {
+        margin: 5px 0;
+    }
+
+    .zoomable-image {
+        width: 100%;
+        border-radius: 8px;
+    }
+
+    .delete-button {
+        background-color: #ff3333;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .delete-button:hover {
+        background-color: #cc0000;
+    }
+
+}
 
 #Tab5 {
     display: flex;
+    padding: 20px;
     justify-content: space-between;
-}
 
-/* Стили для блока вакансий */
-#vacanciesContainer {
-    width: 45%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
+    .tabcontent {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
 
-.vacancy-item {
-    margin-bottom: 10px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    cursor: move;
-}
+    #devicesContainer,
+    #roomsWithDevices {
+        width: 44%;
+        /* Задаємо ширину 40% */
+        padding: 10px;
+        /* Додаємо відступи */
+    }
 
-/* Стили для блока персонала */
-#employeesContainer {
-    width: 45%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
+    #devicesContainer {
+        margin-right: 20px;
+        /* Задаємо відступ справа між контейнерами */
+    }
+
+    #roomsWithDevices {
+        margin-left: 20px;
+        /* Задаємо відступ зліва між контейнерами */
+    }
 
 
-/* Стили для кнопки подтверждения */
-#confirmButton {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
 
-#confirmButton:hover {
-    background-color: #45a049;
-}
+    /* Стилі для пристроїв */
+    .device-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 10px;
+    }
 
-#confirmButton5{
-    position: fixed;
-    bottom: 20px; /* Расстояние от нижней грани экрана */
-    left: 50%;
-    transform: translateX(-50%);
-    height: 50px;
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease; /* Анимация для плавного перемещения */
-}
+    .device-image img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-right: 20px;
+    }
 
-#confirmButton5{
-    background-color: #45a049;
-}
+    .device-info p {
+        margin: 5px 0;
+    }
 
-/* Добавьте этот стиль в ваш файл CSS */
-.selected {
-    background-color: #3498db; /* Цвет выделения (замените на ваш цвет) */
-    color: #fff; /* Цвет текста внутри выделенного блока (замените на ваш цвет) */
-    border: 2px solid #2980b9; /* Обводка выделенного блока (замените на ваш цвет и стиль) */
+    /* Стилі для квартир та кімнат */
+    .apartment-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        /* кордон для кожної квартири */
+        margin-bottom: 10px;
+        /* відступ між квартирами */
+    }
+
+    .apartment-info {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .apartment-info img {
+        width: 100%;
+        /* розтягнути зображення на всю ширину батьківського блоку */
+        height: auto;
+        /* автоматична висота, щоб уникнути деформацій */
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+
+    .room-item {
+        margin-bottom: 10px;
+        text-align: center;
+        border-top: 1px solid #ccc;
+        /* кордон між кімнатами */
+        padding-top: 10px;
+        /* відступ від верхнього кордону */
+    }
+
+    /* Стилі для кнопки підтвердження відповідності */
+    #confirmButton5 {
+        position: fixed;
+        bottom: 20px;
+        /* Відстань від нижнього краю екрану */
+        left: 50%;
+        /* Розміщення по горизонталі в центрі */
+        transform: translateX(-50%);
+        /* Центрування по горизонталі */
+        background-color: #007bff;
+        /* Колір фону */
+        color: #fff;
+        /* Колір тексту */
+        padding: 10px 20px;
+        /* Відступи */
+        border: none;
+        /* Без обведення */
+        border-radius: 4px;
+        /* Радіус кутів */
+        cursor: pointer;
+        /* Зміна вигляду курсору при наведенні */
+    }
+
+    #confirmButton5:hover {
+        background-color: #0056b3;
+        /* Колір фону при наведенні */
+    }
+
+
+    .selected {
+        background-color: #f0f0f0;
+        /* Задній фон */
+        border: 2px solid #007bff;
+        /* Обведення */
+        border-radius: 4px;
+        /* Радіус кутів */
+    }
+
 }
 
 #Tab6 {
-    padding: 20px;
+    #acceptedOffersInfo {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        padding: 20px;
+    }
 
-}
+    .offer-item {
+        width: calc(50% - 20px); /* ширина елемента (мінус відступи) */
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        box-sizing: border-box;
+        text-align: center; /* центрування тексту */
+    }
 
-#acceptedOffersContainer {
-    margin-top: 20px;
-    display: flex;
-    gap: 30px;
-    width: 100%;
-    flex-wrap: wrap;
-    justify-content: center
-}
+    .offer-item > p {
+            padding-bottom: 10px; /* збільшено відступи */
+            margin-bottom: 10px; /* збільшено відступи */
+            font-weight: bold;
+    }
 
-/* Стили для каждого подтвержденного соответствия */
-.match-item {
-    border: 3px solid #ccc;
-    padding: 10px;
-    margin-bottom: 15px;
-}
+    .device-item {
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-top: 1px solid #ccc;
+    }
 
-/* Стили для информации о вакансии */
-.vacancy-info {
-    border-bottom: 1px solid #ccc;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-}
+    .device-image img {
+        width: 150px; /* змінено на більший розмір */
+        height: auto; /* змінено на більший розмір */
+        margin-right: 10px;
+    }
 
-.vacancy-info p:first-child {
-    background-color: #86b85e; /* Цвет фона */
-    color: #fff; /* Цвет текста */
-    padding: 8px 12px; /* Поля вокруг текста */
-    margin: 0; /* Убираем внешние отступы */
-    text-align: center;
-}
+    .device-info p {
+        margin: 5px 0;
+        text-align:left;
+    }
 
-/* Стили для информации о сотрудниках */
-.employees-info {
-    margin-top: 10px;
-}
+    .delete-button {
+        background-color: red;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
 
-.employees-info > p:first-child {
-    background-color: #86b85e; /* Цвет фона */
-    color: #fff; /* Цвет текста */
-    padding: 8px 12px; /* Поля вокруг текста */
-    margin: 0; /* Убираем внешние отступы */
-    text-align: center; /* Выравнивание текста по центру */
-}
+    .delete-button:hover {
+        background-color: darkred;
+    }
 
-.employee-info{
-    border: 1px solid #ccc;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-}
+    .offer-item > p + .device-item {
+        border-top: none;
+    }
 
-/* Стили для кнопки удаления */
-/* Стили для кнопки удаления */
-.delete-button {
-    background-color: #f44336; /* Колір фону кнопки */
-    color: #fff; /* Колір тексту кнопки */
-    padding: 8px 12px; /* Відступи внутрішні */
-    border: none; /* Відсутність границі */
-    border-radius: 4px; /* Закругленість кутів */
-    cursor: pointer; /* Зміна курсору при наведенні */
-    font-size: 14px; /* Розмір шрифту */
-    display: block; /* Блочний елемент */
-    margin: 0 auto; /* Автоматичні зовнішні відступи зліва та справа (центрування) */
-}
+    button {
+        background-color: red;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
 
-.delete-button:hover {
-    background-color: #d32f2f; /* Колір фону кнопки при наведенні */
-}
-
-.offer-item {
-    border: 1px solid #ddd; /* Границя */
-    padding: 10px; /* Внутрішні відступи */
-    margin-bottom: 15px; /* Зовнішні відступи */
-}
-
-.offer-itemp {
-    margin-bottom: 8px; /* Зовнішні відступи між параграфами */
-}
-
-.offer-item img {
-    max-width: 100%; /* Максимальна ширина фотографії */
-    margin-bottom: 8px; /* Зовнішні відступи між фотографією та кнопкою */
-}
-
-.apartment-item {
-    border: 1px solid #ccc;
-    margin: 10px;
-    padding: 10px;
-}
-
-.apartment-info {
-    margin-bottom: 10px;
-}
-
-.room-item {
-    margin-bottom: 5px;
-}
-
-#roomsList {
-    display: flex;
-    flex-direction: row;
-}
-
-.delete-button {
-    background-color: #ff0000;
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-    border-radius: 3px;
-}
-
-.delete-button:hover {
-    background-color: #cc0000;
-}
-
-.zoomable-image {
-    transition: transform 0.3s ease;
-}
-
-.zoomable-image.zoomed {
-    transform: scale(2);
-}
-
-#devicesContainer {
-    margin: 10px;
-}
-
-.device-item {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    min-width: 350px;
-}
-
-.device-item .device-image {
-    margin-right: 20px;
-}
-
-.device-item img {
-    max-width: 200px;
-    height: auto;
-}
-
-.device-item .device-info {
-    flex-grow: 1;
-}
-
-.device-item p {
-    margin: 5px 0;
+    button:hover {
+        background-color: darkred;
+    }
 }

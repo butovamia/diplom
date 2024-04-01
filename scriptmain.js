@@ -1285,7 +1285,15 @@ function showAcceptedOffersInfo() {
                     });
                 });
 
+                // Додамо кнопку видалення
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Видалити';
+                deleteButton.addEventListener('click', () => {
+                    deleteMatch(apartment.apartmentInfo);
+                });
+
                 offerItem.innerHTML = offerHtml;
+                offerItem.appendChild(deleteButton);
                 acceptedOffersInfoContainer.appendChild(offerItem);
             });
         })
@@ -1297,11 +1305,69 @@ function showAcceptedOffersInfo() {
 
 
 
-
-
-
 // Викликаємо функцію для відображення інформації про підтверджені відповідності при завантаженні сторінки
 showAcceptedOffersInfo();
+
+function deleteMatch(apartmentInfo) {
+    // Отримуємо дані про підтверджені відповідності з файлу acceptedoffers.json
+    fetch('https://api.github.com/repos/butovamia/diplom/contents/acceptedoffers.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка при получении данных с сервера');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const acceptedOffersString = data.content;
+            const decodedAcceptedOffersString = new TextDecoder('utf-8').decode(Uint8Array.from(atob(acceptedOffersString), c => c.charCodeAt(0)));
+            let acceptedOffers;
+
+            try {
+                acceptedOffers = JSON.parse(decodedAcceptedOffersString);
+
+                if (!Array.isArray(acceptedOffers)) {
+                    acceptedOffers = [acceptedOffers];
+                }
+            } catch (error) {
+                acceptedOffers = [];
+            }
+
+            // Видаляємо підтверджену відповідність за apartmentInfo
+            acceptedOffers = acceptedOffers.filter(offer => {
+                return !offer.apartments.some(apartment => apartment.apartmentInfo === apartmentInfo);
+            });
+
+            // Обновляем файл acceptedoffers.json з урахуванням видалення
+            const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(acceptedOffers)))).replace(/.{76}/g, "$&\n");
+            const githubToken = 'ghp_9XtTEFkHDDfhiY3Iik1O63';
+
+            fetch('https://api.github.com/repos/butovamia/diplom/contents/acceptedoffers.json', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${githubToken + 'IGHVFxc41z25Xe'}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: 'Видалення підтвердженої відповідності',
+                    content: updatedContent,
+                    sha: data.sha,
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Підтверджену відповідність успішно видалено:', data);
+
+                    // Обновляем отображение
+                    showAcceptedOffers();
+                })
+                .catch(error => {
+                    console.error('Помилка при оновленні даних на GitHub:', error);
+                });
+        })
+        .catch(error => {
+            console.error('Помилка при отриманні даних про підтверджені відповідності:', error);
+        });
+}
 
 
 
