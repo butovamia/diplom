@@ -800,7 +800,7 @@ function showRoomsWithDevices() {
                 apartmentInfo.classList.add('apartment-info');
                 apartmentInfo.innerHTML = `
                     <img src="${apartment.image}" alt="Квартира №${apartment.id}">
-                    <p>Айди квартири: ${apartment.id}</p>
+                    <p>ID квартири: ${apartment.id}</p>
                 `;
                 apartmentItem.appendChild(apartmentInfo);
             
